@@ -27,18 +27,18 @@ public class NewtonianTrajectory : MonoBehaviour
         if (Time.time >= nextUpdateTime)
         {
 
-            physicsStep(Time.time);
+            transform.position = calculatePosition(Time.time);
 
             nextUpdateTime += TIME_STEP; 
         }
     }
 
-    void physicsStep(float t)
+    Vector3 calculatePosition(float t)
     {
         float xt = StartPosition.x + (InitialVelocity.x * t);
         float yt = StartPosition.y + (InitialVelocity.y * t) + (GRAVITY * (t * t)) / 2.0f;
         float zt = StartPosition.z + (InitialVelocity.z * t);
 
-        transform.position = new Vector3(xt,yt,zt);
+        return new Vector3(xt,yt,zt);
     }
 }
