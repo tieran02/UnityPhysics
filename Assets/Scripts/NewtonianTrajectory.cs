@@ -26,8 +26,7 @@ public class NewtonianTrajectory : MonoBehaviour
         // If the next update is reached
         if (Time.time >= nextUpdateTime)
         {
-
-            transform.position = calculatePosition(Time.time);
+            transform.position = calculatePosition(nextUpdateTime);
 
             nextUpdateTime += TIME_STEP; 
         }
