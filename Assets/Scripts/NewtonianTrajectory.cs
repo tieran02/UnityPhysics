@@ -5,6 +5,8 @@ using UnityEngine;
 public class NewtonianTrajectory : MonoBehaviour
 {
     public Vector3 InitialVelocity;
+    public PlaneCollider PlaneCollider;
+    public SphereCollider SphereCollider;
 
     private Vector3 StartPosition;
 
@@ -12,7 +14,10 @@ public class NewtonianTrajectory : MonoBehaviour
     private const float TIME_STEP = 1 / 60.0f;
     private float nextUpdateTime = 0.0f;
 
-
+    void Awake()
+    {
+        SphereCollider = GetComponent<SphereCollider>();
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -26,7 +31,11 @@ public class NewtonianTrajectory : MonoBehaviour
         // If the next update is reached
         if (Time.time >= nextUpdateTime)
         {
-            transform.position = calculatePosition(nextUpdateTime);
+
+            if (!SphereCollider.Intersect(PlaneCollider))
+            {
+                transform.position = calculatePosition(nextUpdateTime);
+            }
 
             nextUpdateTime += TIME_STEP; 
         }
