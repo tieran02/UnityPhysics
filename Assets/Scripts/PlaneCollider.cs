@@ -48,10 +48,39 @@ public class PlaneCollider : MonoBehaviour
             if(mesh == null)
                 return;
 
-            plane.A = transform.TransformPoint(mesh.vertices[0]);
-            plane.B = transform.TransformPoint(mesh.vertices[1]);
-            plane.C = transform.TransformPoint(mesh.vertices[2]);
+            //plane.A = transform.TransformPoint(mesh.vertices[0]);
+            //plane.B = transform.TransformPoint(mesh.vertices[1]);
+            //plane.C = transform.TransformPoint(mesh.vertices[2]);
         }
+    }
+
+    public bool SphereCollisionOccured(SphereCollider sphereCollider, float deltaTime, ref float vcMagnitude)
+    {
+        Vector3 N = plane.Normal();
+        Vector3 V = sphereCollider.RigidBody.Velocity;
+
+        float angle = Vector3.Angle(N,-V);
+
+
+        if (angle <= 90.0f)
+        {
+            Vector3 k = plane.C; // an arbitrary point on the plane
+            Vector3 P = sphereCollider.transform.position - k; //a vector from k to the start of the sphere
+
+            float q1 = Vector3.Angle(P, N);
+            float q2 = (90.0f - q1) * Mathf.Deg2Rad;
+
+            float s = Vector3.Angle(V, -N) * Mathf.Deg2Rad;
+
+            float distance = Mathf.Sin(q2) * P.magnitude;
+            vcMagnitude = (distance - sphereCollider.Radius) / Mathf.Cos(s);
+
+            Debug.Log($"Distance: {distance}  vc:{vcMagnitude}  v:{V.magnitude}  S:{s}");
+
+            return vcMagnitude <= (V.magnitude * deltaTime);
+        }
+
+        return false;
     }
 
     void OnDrawGizmos()

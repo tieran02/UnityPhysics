@@ -131,8 +131,8 @@ GameObject:
   - component: {fileID: 142193380}
   - component: {fileID: 142193379}
   - component: {fileID: 142193378}
-  - component: {fileID: 142193376}
   - component: {fileID: 142193381}
+  - component: {fileID: 142193376}
   m_Layer: 0
   m_Name: SolverSphere
   m_TagString: Untagged
@@ -149,12 +149,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 142193375}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 00d18bfb624822d4cbc413e59b210c44, type: 3}
+  m_Script: {fileID: 11500000, guid: fe792295de21b244ba4576efaf8a1875, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  InitialVelocity: {x: 5, y: 10, z: -10}
-  SphereCollider: {fileID: 0}
-  PlaneCollider: {fileID: 162486396}
+  Velocity: {x: 0, y: 0, z: 0}
+  InitialVelocity: {x: 10, y: 10, z: -5}
 --- !u!23 &142193378
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -208,7 +207,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 142193375}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -3, y: 0.7, z: 0}
+  m_LocalPosition: {x: -3, y: 0.81, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -227,6 +226,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Radius: 0.5
+  RigidBody: {fileID: 0}
 --- !u!1 &162486391
 GameObject:
   m_ObjectHideFlags: 0
@@ -319,8 +319,53 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   plane:
     A: {x: 0, y: 0, z: 0}
-    B: {x: 0, y: 0, z: 0}
-    C: {x: 0, y: 0, z: 0}
+    B: {x: 0, y: 0, z: 1}
+    C: {x: -1, y: 0, z: 0}
+--- !u!1 &515249940
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 515249942}
+  - component: {fileID: 515249941}
+  m_Layer: 0
+  m_Name: Solver
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &515249941
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 515249940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8704eac5c1bcd624f991b38ea1cbc395, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RigidBodies: []
+  PlaneCollider: {fileID: 162486396}
+--- !u!4 &515249942
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 515249940}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 13.034374, y: 10.316025, z: 9.420377}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1429502510
 GameObject:
   m_ObjectHideFlags: 0
@@ -340,7 +385,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1429502511
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -369,6 +414,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Radius: 0.5
+  RigidBody: {fileID: 0}
 --- !u!23 &1429502513
 MeshRenderer:
   m_ObjectHideFlags: 0

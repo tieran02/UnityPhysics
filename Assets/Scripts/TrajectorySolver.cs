@@ -45,6 +45,7 @@ public class TrajectorySolver : MonoBehaviour
             Vector3 oldPos = transform.position;
             Solver(deltaTime);
 
+            SphereCollider.RigidBody.Velocity = velocity;
             if (SphereCollider.Intersect(PlaneCollider))
             {
                 velocity = Vector3.zero;

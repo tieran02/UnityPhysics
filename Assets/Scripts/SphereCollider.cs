@@ -6,16 +6,11 @@ using UnityEngine;
 public class SphereCollider : MonoBehaviour
 {
     public float Radius = 0.5f;
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
+    public PhysicsRigidBody RigidBody;
 
-    // Update is called once per frame
-    void Update()
+    void Awake()
     {
-        
+        RigidBody = GetComponent<PhysicsRigidBody>();
     }
 
     void OnDrawGizmos()
@@ -32,7 +27,8 @@ public class SphereCollider : MonoBehaviour
 
     public bool Intersect(PlaneCollider other)
     {
-        float distance = Vector3.Dot((transform.position - other.plane.A), other.plane.Normal());
-        return distance <= Radius;
+        float VC = 0.0f;
+        return other.SphereCollisionOccured(this, 1.0f / 60.0f, ref VC);
     }
+
 }
