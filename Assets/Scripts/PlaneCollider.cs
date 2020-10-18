@@ -75,7 +75,7 @@ public class PlaneCollider : MonoBehaviour
             float distance = Mathf.Sin(q2) * P.magnitude;
             vcMagnitude = (distance - sphereCollider.Radius) / Mathf.Cos(s);
 
-            Debug.Log($"Distance: {distance}  vc:{vcMagnitude}  v:{V.magnitude}  S:{s}");
+            //Debug.Log($"Distance: {distance}  vc:{vcMagnitude}  v:{V.magnitude}  S:{s}");
 
             return vcMagnitude <= (V.magnitude * deltaTime);
         }

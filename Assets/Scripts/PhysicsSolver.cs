@@ -8,6 +8,7 @@ using UnityEngine;
 public class PhysicsSolver : MonoBehaviour
 {
     public PhysicsRigidBody[] RigidBodies;
+    public SphereCollider[] SphereColliders;
     public PlaneCollider PlaneCollider;
 
     private Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
@@ -18,6 +19,7 @@ public class PhysicsSolver : MonoBehaviour
     void Awake()
     {
         RigidBodies = FindObjectsOfType<PhysicsRigidBody>();
+        SphereColliders = FindObjectsOfType<SphereCollider>();
     }
 
     // Update is called once per frame
@@ -59,6 +61,19 @@ public class PhysicsSolver : MonoBehaviour
                 rigidBody.Velocity = newVelocity;
 
                 //todo project velocity along the plane
+            }
+
+            //check if sphere collides with other spheres
+            foreach (var otherSphereCollider in SphereColliders)
+            {
+                if(sphereCollider.RigidBody == null || sphereCollider == otherSphereCollider)
+                    continue;
+
+                if (sphereCollider.SphereCollisionOccured(otherSphereCollider, deltaTime, ref vc))
+                {
+                    Vector3 newVelocity = rigidBody.Velocity.normalized * vc;
+                    rigidBody.Velocity = newVelocity;
+                }
             }
         }
 
