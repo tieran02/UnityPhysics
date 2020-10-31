@@ -11,7 +11,6 @@ public class PhysicsSolver : MonoBehaviour
     public SphereCollider[] SphereColliders;
     public PlaneCollider PlaneCollider;
 
-    private Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
     private const float TIME_STEP = 1 / 60.0f;
     private float accumulator;
     private float lastTime;
@@ -47,36 +46,8 @@ public class PhysicsSolver : MonoBehaviour
 
     void Solver(PhysicsRigidBody rigidBody, float deltaTime)
     {
-        rigidBody.Velocity += (GRAVITY_FORCE * deltaTime);
-
-        //check for collision
-        SphereCollider sphereCollider = rigidBody.GetComponent<SphereCollider>();
-        if (sphereCollider != null && PlaneCollider != null)
-        {
-            float vc = 1.0f;
-            //check if on collision course with plane
-            if (PlaneCollider.SphereCollisionOccured(sphereCollider, deltaTime, ref vc))
-            {
-                Vector3 newVelocity = rigidBody.Velocity.normalized * vc;
-                rigidBody.Velocity = newVelocity;
-
-                //todo project velocity along the plane
-            }
-
-            //check if sphere collides with other spheres
-            foreach (var otherSphereCollider in SphereColliders)
-            {
-                if(sphereCollider.RigidBody == null || sphereCollider == otherSphereCollider)
-                    continue;
-
-                if (sphereCollider.SphereCollisionOccured(otherSphereCollider, deltaTime, ref vc))
-                {
-                    Vector3 newVelocity = rigidBody.Velocity.normalized * vc;
-                    rigidBody.Velocity = newVelocity;
-                }
-            }
-        }
-
-        rigidBody.TranslatePosition(rigidBody.Velocity * deltaTime);
+        rigidBody.ApplyForces(deltaTime);
+        rigidBody.Collisions(PlaneCollider,SphereColliders, deltaTime);
+        rigidBody.Integrate(deltaTime);
     }
 }
