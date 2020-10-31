@@ -74,6 +74,7 @@ public class PlaneCollider : MonoBehaviour
 
             float distance = Mathf.Sin(q2) * P.magnitude;
 
+            //If the plane is finite, check if the colliers point is within the finite plane
             if (!IsInfinite && !IsPointOnFinitePlane(sphereCollider.transform.position,distance,N))
             {
                 return false;
@@ -90,12 +91,15 @@ public class PlaneCollider : MonoBehaviour
 
     private bool IsPointOnFinitePlane(Vector3 point, float distance, Vector3 normal)
     {
+        //get the coplanar point
         Vector3 pl_cp = point - (distance * normal);
         Vector3 pa = pl_cp - plane.A;
 
         Vector3 AB = plane.AB();
         Vector3 AC = plane.AC();
 
+        //Get the U,V positions local to the plane by using the AB and AC vectors of the plane
+        //If U or V are less than 0 or greater than 1 the point is outside of the finite plane
         float u = Vector3.Dot(pa, AB) / Vector3.Dot(AB, AB);
         float v = Vector3.Dot(pa, AC) / Vector3.Dot(AC, AC);
 
