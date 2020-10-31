@@ -38,6 +38,7 @@ public struct Plane
 public class PlaneCollider : MonoBehaviour
 {
     public Plane plane;
+    public bool IsInfinite = true;
 
     void Awake()
     {
@@ -48,9 +49,9 @@ public class PlaneCollider : MonoBehaviour
             if(mesh == null)
                 return;
 
-            //plane.A = transform.TransformPoint(mesh.vertices[0]);
-            //plane.B = transform.TransformPoint(mesh.vertices[1]);
-            //plane.C = transform.TransformPoint(mesh.vertices[2]);
+            plane.A = transform.TransformPoint(mesh.vertices[0]);
+            plane.B = transform.TransformPoint(mesh.vertices[1]);
+            plane.C = transform.TransformPoint(mesh.vertices[2]);
         }
     }
 
@@ -59,12 +60,12 @@ public class PlaneCollider : MonoBehaviour
         Vector3 N = plane.Normal();
         Vector3 V = sphereCollider.RigidBody.Velocity;
 
-        float angle = Vector3.Angle(N,-V);
+        float angle = Vector3.Angle(N, -V);
 
 
         if (angle <= 90.0f)
         {
-            Vector3 k = plane.C; // an arbitrary point on the plane
+            Vector3 k = plane.A; // an arbitrary point on the plane
             Vector3 P = sphereCollider.transform.position - k; //a vector from k to the start of the sphere
 
             float q1 = Vector3.Angle(P, N);
@@ -73,6 +74,19 @@ public class PlaneCollider : MonoBehaviour
             float s = Vector3.Angle(V, -N) * Mathf.Deg2Rad;
 
             float distance = Mathf.Sin(q2) * P.magnitude;
+
+            if (!IsInfinite)
+            {
+                Vector3 pl_cp = sphereCollider.transform.position - (distance * N);
+                Vector3 pa = pl_cp - plane.A;
+
+                float u = Vector3.Dot(pa, plane.AB()) / Vector3.Dot(plane.AB(),plane.AB());
+                float v = Vector3.Dot(pa, plane.AC()) / Vector3.Dot(plane.AC(), plane.AC());
+
+                if (u < 0.0f || u > 1.0f || v < 0.0f || v > 1.0f)
+                    return false;
+            }
+
             vcMagnitude = (distance - sphereCollider.Radius) / Mathf.Cos(s);
 
             //Debug.Log($"Distance: {distance}  vc:{vcMagnitude}  v:{V.magnitude}  S:{s}");

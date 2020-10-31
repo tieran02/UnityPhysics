@@ -47,7 +47,7 @@ public class SphereCollider : MonoBehaviour
 
         vcMagnitude = Mathf.Cos(q) * aMagnitude - e;
 
-        Debug.Log($"Distance: {d}  vc:{vcMagnitude}  v:{V.magnitude}  q:{q}  e:{e}");
+        //Debug.Log($"Distance: {d}  vc:{vcMagnitude}  v:{V.magnitude}  q:{q}  e:{e}");
 
         return vcMagnitude <= V.magnitude * deltaTime;
 
