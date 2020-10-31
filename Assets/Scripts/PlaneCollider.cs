@@ -62,7 +62,6 @@ public class PlaneCollider : MonoBehaviour
 
         float angle = Vector3.Angle(N, -V);
 
-
         if (angle <= 90.0f)
         {
             Vector3 k = plane.A; // an arbitrary point on the plane
@@ -75,26 +74,35 @@ public class PlaneCollider : MonoBehaviour
 
             float distance = Mathf.Sin(q2) * P.magnitude;
 
-            if (!IsInfinite)
+            if (!IsInfinite && !IsPointOnFinitePlane(sphereCollider.transform.position,distance,N))
             {
-                Vector3 pl_cp = sphereCollider.transform.position - (distance * N);
-                Vector3 pa = pl_cp - plane.A;
-
-                float u = Vector3.Dot(pa, plane.AB()) / Vector3.Dot(plane.AB(),plane.AB());
-                float v = Vector3.Dot(pa, plane.AC()) / Vector3.Dot(plane.AC(), plane.AC());
-
-                if (u < 0.0f || u > 1.0f || v < 0.0f || v > 1.0f)
-                    return false;
+                return false;
             }
 
             vcMagnitude = (distance - sphereCollider.Radius) / Mathf.Cos(s);
 
-            //Debug.Log($"Distance: {distance}  vc:{vcMagnitude}  v:{V.magnitude}  S:{s}");
 
             return vcMagnitude <= (V.magnitude * deltaTime);
         }
 
         return false;
+    }
+
+    private bool IsPointOnFinitePlane(Vector3 point, float distance, Vector3 normal)
+    {
+        Vector3 pl_cp = point - (distance * normal);
+        Vector3 pa = pl_cp - plane.A;
+
+        Vector3 AB = plane.AB();
+        Vector3 AC = plane.AC();
+
+        float u = Vector3.Dot(pa, AB) / Vector3.Dot(AB, AB);
+        float v = Vector3.Dot(pa, AC) / Vector3.Dot(AC, AC);
+
+        if (u < 0.0f || u > 1.0f || v < 0.0f || v > 1.0f)
+            return false;
+
+        return true;
     }
 
     void OnDrawGizmos()
