@@ -82,35 +82,29 @@ public class PhysicsRigidBody : MonoBehaviour
         Velocity += externalForces * deltaTime;
     }
 
-    public void Collisions(PlaneCollider planeCollider, SphereCollider[] sphereColliders, float deltaTime)
+    public void Collisions(BaseCollider[] colliders, float deltaTime)
     {
         //check for collision
-        SphereCollider sphereCollider = GetComponent<SphereCollider>();
-        if (sphereCollider != null && planeCollider != null)
+        BaseCollider collider = GetComponent<BaseCollider>();
+        if (collider != null)
         {
             float vc = 1.0f;
-            //check if on collision course with plane
-            if (planeCollider.SphereCollisionOccured(sphereCollider, deltaTime, ref vc))
-            {
-                Vector3 newVelocity = Velocity.normalized * vc;
-                //Velocity = newVelocity;
-
-                ApplyLinearResponse();
-                //todo project velocity along the plane
-            }
 
             //check if sphere collides with other spheres
-            foreach (var otherSphereCollider in sphereColliders)
+            foreach (var otherCollider in colliders)
             {
-                if (sphereCollider.RigidBody == null || sphereCollider == otherSphereCollider)
+                if (collider.RigidBody == null || collider == otherCollider)
                     continue;
 
-                if (sphereCollider.SphereCollisionOccured(otherSphereCollider, deltaTime, ref vc))
+                if (collider.CollisionOccured(otherCollider, deltaTime, ref vc))
                 {
-                    Vector3 newVelocity = Velocity.normalized * vc;
+                    //Vector3 newVelocity = Velocity.normalized * vc;
                     //Velocity = newVelocity;
 
-                    ApplyLinearResponse(otherSphereCollider.RigidBody);
+                    if(otherCollider.RigidBody)
+                        ApplyLinearResponse(otherCollider.RigidBody);
+                    else
+                        ApplyLinearResponse();
                 }
             }
         }

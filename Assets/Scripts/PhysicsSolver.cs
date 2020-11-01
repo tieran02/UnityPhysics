@@ -8,7 +8,7 @@ using UnityEngine;
 public class PhysicsSolver : MonoBehaviour
 {
     public PhysicsRigidBody[] RigidBodies;
-    public SphereCollider[] SphereColliders;
+    public BaseCollider[] BaseColliders;
     public PlaneCollider PlaneCollider;
 
     private const float TIME_STEP = 1 / 60.0f;
@@ -18,7 +18,7 @@ public class PhysicsSolver : MonoBehaviour
     void Awake()
     {
         RigidBodies = FindObjectsOfType<PhysicsRigidBody>();
-        SphereColliders = FindObjectsOfType<SphereCollider>();
+        BaseColliders = FindObjectsOfType<BaseCollider>();
     }
 
     // Update is called once per frame
@@ -47,7 +47,7 @@ public class PhysicsSolver : MonoBehaviour
     void Solver(PhysicsRigidBody rigidBody, float deltaTime)
     {
         rigidBody.ApplyForces(deltaTime);
-        rigidBody.Collisions(PlaneCollider,SphereColliders, deltaTime);
+        rigidBody.Collisions(BaseColliders, deltaTime);
         rigidBody.Integrate(deltaTime);
     }
 }

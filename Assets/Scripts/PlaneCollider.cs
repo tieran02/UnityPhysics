@@ -35,12 +35,12 @@ public struct Plane
     }
 }
 
-public class PlaneCollider : MonoBehaviour
+public class PlaneCollider : BaseCollider
 {
     public Plane plane;
     public bool IsInfinite = true;
 
-    void Awake()
+    protected override void Awake()
     {
         var meshFilter = GetComponent<MeshFilter>();
         if (meshFilter != null)
@@ -55,17 +55,17 @@ public class PlaneCollider : MonoBehaviour
         }
     }
 
-    public bool SphereCollisionOccured(SphereCollider sphereCollider, float deltaTime, ref float vcMagnitude)
+    public override bool CollisionOccured(SphereCollider collider, float deltaTime, ref float vcMagnitude)
     {
         Vector3 N = plane.Normal();
-        Vector3 V = sphereCollider.RigidBody.Velocity;
+        Vector3 V = collider.RigidBody.Velocity;
 
         float angle = Vector3.Angle(N, -V);
 
         if (angle <= 90.0f)
         {
             Vector3 k = plane.A; // an arbitrary point on the plane
-            Vector3 P = sphereCollider.transform.position - k; //a vector from k to the start of the sphere
+            Vector3 P = collider.transform.position - k; //a vector from k to the start of the sphere
 
             float q1 = Vector3.Angle(P, N);
             float q2 = (90.0f - q1) * Mathf.Deg2Rad;
@@ -75,18 +75,24 @@ public class PlaneCollider : MonoBehaviour
             float distance = Mathf.Sin(q2) * P.magnitude;
 
             //If the plane is finite, check if the colliers point is within the finite plane
-            if (!IsInfinite && !IsPointOnFinitePlane(sphereCollider.transform.position,distance,N))
+            if (!IsInfinite && !IsPointOnFinitePlane(collider.transform.position, distance, N))
             {
                 return false;
             }
 
-            vcMagnitude = (distance - sphereCollider.Radius) / Mathf.Cos(s);
+            vcMagnitude = (distance - collider.Radius) / Mathf.Cos(s);
 
 
             return vcMagnitude <= (V.magnitude * deltaTime);
         }
 
         return false;
+    }
+
+    //TODO implement plane to plane collision
+    public override bool CollisionOccured(PlaneCollider collider, float deltaTime, ref float vcMagnitude)
+    {
+        throw new System.NotImplementedException();
     }
 
     private bool IsPointOnFinitePlane(Vector3 point, float distance, Vector3 normal)
