@@ -14,14 +14,17 @@ public class PhysicsRigidBody : MonoBehaviour
     public float Mass = 1.0f;
     public Vector3 CenterOfMass;
 
+    //RestitutionCoefficient: 0 = Perfectly Inelastic, RestitutionCoefficient: 1 = Elastic
+    public float RestitutionCoefficient = 0.6f;
+
     private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
 
-    private Vector3 deltaVelocity;
-    private Vector3 deltaMomentum;
+    private Vector3 lastVelocity;
+    private Vector3 lastMomentum;
 
     private Vector3 externalForces;
 
-    //net force, change of momentum in respects to time (deltaMomentum / delta)
+    //net force, change of momentum in respects to time (lastMomentum / delta)
     private Vector3 Fnet;
 
     private void Awake()
@@ -54,7 +57,7 @@ public class PhysicsRigidBody : MonoBehaviour
     /// <returns></returns>
     public Vector3 Acceleration()
     {
-        return Velocity - deltaVelocity;
+        return Velocity - lastVelocity;
     }
 
     /// <summary>
@@ -69,9 +72,9 @@ public class PhysicsRigidBody : MonoBehaviour
 
     public void ApplyForces(float deltaTime)
     {
-        deltaVelocity = Velocity;
-        deltaMomentum = Momentum();
-        Fnet = deltaMomentum / deltaTime;
+        lastVelocity = Velocity;
+        lastMomentum = Momentum();
+        Fnet = lastMomentum / deltaTime;
 
 
         externalForces = GRAVITY_FORCE * Mass;
@@ -90,8 +93,9 @@ public class PhysicsRigidBody : MonoBehaviour
             if (planeCollider.SphereCollisionOccured(sphereCollider, deltaTime, ref vc))
             {
                 Vector3 newVelocity = Velocity.normalized * vc;
-                Velocity = newVelocity;
+                //Velocity = newVelocity;
 
+                ApplyLinearResponse();
                 //todo project velocity along the plane
             }
 
@@ -104,7 +108,9 @@ public class PhysicsRigidBody : MonoBehaviour
                 if (sphereCollider.SphereCollisionOccured(otherSphereCollider, deltaTime, ref vc))
                 {
                     Vector3 newVelocity = Velocity.normalized * vc;
-                    Velocity = newVelocity;
+                    //Velocity = newVelocity;
+
+                    ApplyLinearResponse(otherSphereCollider.RigidBody);
                 }
             }
         }
@@ -112,9 +118,9 @@ public class PhysicsRigidBody : MonoBehaviour
 
     public void Integrate(float deltaTime)
     {
-        deltaVelocity = Velocity;
-        deltaMomentum = Momentum();
-        Fnet = deltaMomentum / deltaTime;
+        lastVelocity = Velocity;
+        lastMomentum = Momentum();
+        Fnet = lastMomentum / deltaTime;
 
         TranslatePosition(Velocity * deltaTime);
     }
@@ -122,5 +128,32 @@ public class PhysicsRigidBody : MonoBehaviour
     public void AddLinearImpulse(Vector3 impulse)
     {
         Velocity += impulse;
+    }
+
+    private void ApplyLinearResponse(PhysicsRigidBody other)
+    {
+        // Relative velocity
+        Vector3 approachVelocity = Velocity - other.Velocity;
+
+        //Restitution calculation (RestitutionCoefficient: 0 = Perfectly Inelastic, RestitutionCoefficient: 1 = Elastic)
+        Vector3 J = (-approachVelocity * (RestitutionCoefficient + 1)) / ((1 / Mass) + (1 / other.Mass));
+
+        Vector3 V1 = (J / Mass) + Velocity;
+        Vector3 V2 = (-J / other.Mass) + other.Velocity;
+
+        Velocity = V1;
+        other.Velocity = V2;
+    }
+
+    private void ApplyLinearResponse()
+    {
+        // Relative velocity
+        Vector3 approachVelocity = Velocity;
+
+        Vector3 J = (-approachVelocity * (RestitutionCoefficient + 1)) / ((1 / Mass));
+
+        Vector3 V1 = (J / Mass) + Velocity;
+
+        Velocity = V1;
     }
 }

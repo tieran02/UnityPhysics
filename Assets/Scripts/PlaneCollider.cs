@@ -98,10 +98,15 @@ public class PlaneCollider : MonoBehaviour
         Vector3 AB = plane.AB();
         Vector3 AC = plane.AC();
 
+        float dotAB = Vector3.Dot(AB, AB);
+        float dotAC = Vector3.Dot(AC, AC);
+
         //Get the U,V positions local to the plane by using the AB and AC vectors of the plane
         //If U or V are less than 0 or greater than 1 the point is outside of the finite plane
-        float u = Vector3.Dot(pa, AB) / Vector3.Dot(AB, AB);
-        float v = Vector3.Dot(pa, AC) / Vector3.Dot(AC, AC);
+        float u = Vector3.Dot(pa, AB) / dotAB;
+        float v = Vector3.Dot(pa, AC) / dotAC;
+
+        float radius = 0.5f;
 
         if (u < 0.0f || u > 1.0f || v < 0.0f || v > 1.0f)
             return false;
