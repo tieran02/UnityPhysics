@@ -15,8 +15,7 @@ public class SphereCollider : BaseCollider
     public override bool CollisionOccured(SphereCollider sphereCollider, float deltaTime, ref float vcMagnitude)
     {
         //first check if both colliders are in motion
-        if (RigidBody != null && sphereCollider.RigidBody != null && RigidBody.Velocity.sqrMagnitude != 0.0f &&
-            sphereCollider.RigidBody.Velocity.sqrMagnitude != 0.0f)
+        if (RigidBody != null && sphereCollider.RigidBody != null)
         {
             return motionCollision(sphereCollider, deltaTime, ref vcMagnitude);
         }
@@ -52,37 +51,41 @@ public class SphereCollider : BaseCollider
         if (RigidBody == null || otherRigidBody == null)
             return false;
 
-        float deltaXPosition = sphereCollider.transform.position.x - transform.position.x;
-        float deltaYPosition = sphereCollider.transform.position.y - transform.position.y;
-        float deltaZPosition = sphereCollider.transform.position.z - transform.position.z;
+        //vector from last positon to other sphers last positon
+        Vector3 AB = otherRigidBody.Position - RigidBody.Position;
 
-        float deltaXVelocity = (otherRigidBody.Velocity.x - RigidBody.Velocity.x);
-        float deltaYVelocity = (otherRigidBody.Velocity.y - RigidBody.Velocity.y);
-        float deltaZVelocity = (otherRigidBody.Velocity.z - RigidBody.Velocity.z);
+        //relative velocity from last time step
+        Vector3 vab = (otherRigidBody.Velocity - RigidBody.Velocity) * deltaTime;
 
-        float A = deltaXVelocity * deltaXVelocity + deltaYVelocity * deltaYVelocity +
-                  deltaZVelocity * deltaZVelocity;
+        float radiusAB = Radius + sphereCollider.Radius;
 
-        float B = 2 * deltaXPosition * deltaXVelocity +
-                  2 * deltaYPosition * deltaYVelocity +
-                  2 * deltaZPosition * deltaZVelocity;
+        float a = Vector3.Dot(vab, vab);
+        float b = 2 * Vector3.Dot(AB, vab);
+        float c = Vector3.Dot(AB, AB) - (radiusAB * radiusAB);
 
-        float C = deltaXPosition * deltaXPosition + deltaYPosition * deltaYPosition +
-                  deltaZPosition * deltaZPosition +
-                  (Radius + sphereCollider.Radius) * (Radius + sphereCollider.Radius);
+        //first check if the two spheres are currently overlapping
+        if(Vector3.Dot(AB,AB) <= (radiusAB * radiusAB))
+        {
+            vcMagnitude = 0.0f;
+            return true;
+        }
 
-        float preRoot = B * B - 4 * A * C;
-        if (preRoot < 0.0f)
-            return false;
+        //check if the two sphere hit each other this frame
+        float result1;
+        float result2;
+        if(QuadraticFormular(a,b,c,out result1,out result2))
+        {
+            if (result1 < result2)
+                vcMagnitude = result1;
+            else
+                vcMagnitude = result2;
+
+            if(vcMagnitude <= radiusAB && vcMagnitude > 0.0f)
+                return true;
+        }
 
 
-        double sqr = Mathf.Sqrt(preRoot);
-        double t1 = (-B + sqr) / 2 * A;
-        double t2 = (-B - sqr) / 2 * A;
-
-        float collisionPoint = Mathf.Min((float)t1, (float)t2);
-
-        return true;
+        return false;
     }
 
     private bool QuadraticFormular(float A, float B, float C, out float result1, out float result2)

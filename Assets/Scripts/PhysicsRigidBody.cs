@@ -19,7 +19,10 @@ public class PhysicsRigidBody : MonoBehaviour
 
     private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
 
+    private Vector3 lastPosition;
+    public Vector3 LastPosition => lastPosition;
     private Vector3 lastVelocity;
+    public Vector3 LastVelocity => lastVelocity;
     private Vector3 lastMomentum;
 
     private Vector3 externalForces;
@@ -30,6 +33,7 @@ public class PhysicsRigidBody : MonoBehaviour
     private void Awake()
     {
         AddLinearImpulse(InitialImpulse);
+        lastPosition = Position;
     }
 
     public void SetPosition(Vector3 Position)
@@ -72,13 +76,7 @@ public class PhysicsRigidBody : MonoBehaviour
 
     public void ApplyForces(float deltaTime)
     {
-        lastVelocity = Velocity;
-        lastMomentum = Momentum();
-        Fnet = lastMomentum / deltaTime;
-
-
         externalForces = GRAVITY_FORCE * Mass;
-
         Velocity += externalForces * deltaTime;
     }
 
@@ -112,6 +110,7 @@ public class PhysicsRigidBody : MonoBehaviour
 
     public void Integrate(float deltaTime)
     {
+        lastPosition = Position;
         lastVelocity = Velocity;
         lastMomentum = Momentum();
         Fnet = lastMomentum / deltaTime;
