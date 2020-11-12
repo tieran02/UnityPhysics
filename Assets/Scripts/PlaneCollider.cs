@@ -55,8 +55,10 @@ public class PlaneCollider : BaseCollider
         }
     }
 
-    public override bool CollisionOccured(SphereCollider collider, float deltaTime, ref float vcMagnitude)
+    public override bool CollisionOccured(SphereCollider collider, float deltaTime, out CollisionData collisionData)
     {
+        collisionData = new CollisionData();
+
         Vector3 N = plane.Normal();
         Vector3 V = collider.RigidBody.Velocity;
 
@@ -80,17 +82,22 @@ public class PlaneCollider : BaseCollider
                 return false;
             }
 
-            vcMagnitude = (distance - collider.Radius) / Mathf.Cos(s);
+            float vcMagnitude = (distance - collider.Radius) / Mathf.Cos(s);
 
 
-            return vcMagnitude <= (V.magnitude * deltaTime);
+            if (vcMagnitude <= (V.magnitude * deltaTime))
+            {
+                collisionData.CollisionPoint = collider.transform.position + (P.normalized * vcMagnitude);
+                collisionData.CollisionNormal = N;
+                return true;
+            };
         }
 
         return false;
     }
 
     //TODO implement plane to plane collision
-    public override bool CollisionOccured(PlaneCollider collider, float deltaTime, ref float vcMagnitude)
+    public override bool CollisionOccured(PlaneCollider collider, float deltaTime, out CollisionData collisionData)
     {
         throw new System.NotImplementedException();
     }

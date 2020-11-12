@@ -5,12 +5,18 @@ using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
 
+public struct CollisionData
+{
+    public Vector3 CollisionPoint;
+    public Vector3 CollisionNormal;
+}
+
 public abstract class BaseCollider : MonoBehaviour
 {
     public PhysicsRigidBody RigidBody;
 
-    public abstract bool CollisionOccured(SphereCollider collider, float deltaTime, ref float vcMagnitude);
-    public abstract bool CollisionOccured(PlaneCollider collider, float deltaTime, ref float vcMagnitude);
+    public abstract bool CollisionOccured(SphereCollider collider, float deltaTime, out CollisionData collisionData);
+    public abstract bool CollisionOccured(PlaneCollider collider, float deltaTime, out CollisionData collisionData);
 
     protected virtual void Awake()
     {
@@ -29,6 +35,19 @@ public abstract class BaseCollider : MonoBehaviour
                 break;
         }
 
+        return false;
+    }
+
+    public bool CollisionOccured(BaseCollider collider, float deltaTime, out CollisionData collisionData)
+    {
+        switch (collider)
+        {
+            case SphereCollider sphereCollider:
+                return CollisionOccured(sphereCollider, deltaTime, out collisionData);
+            case PlaneCollider planeCollider:
+                return CollisionOccured(planeCollider, deltaTime, out collisionData);
+        }
+        collisionData = new CollisionData();
         return false;
     }
 }

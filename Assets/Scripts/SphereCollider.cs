@@ -7,22 +7,32 @@ public class SphereCollider : BaseCollider
 {
     public float Radius = 0.5f;
 
-    void OnDrawGizmos()
+    public override bool CollisionOccured(PlaneCollider collider, float deltaTime, out CollisionData collisionData)
     {
-        Gizmos.DrawWireSphere(transform.position, Radius);
+        return collider.CollisionOccured(this, deltaTime, out collisionData);
     }
 
-    public override bool CollisionOccured(SphereCollider sphereCollider, float deltaTime, ref float vcMagnitude)
+    public override bool CollisionOccured(SphereCollider sphereCollider, float deltaTime, out CollisionData collisionData)
     {
-        //first check if both colliders are in motion
-        if (RigidBody != null && sphereCollider.RigidBody != null)
-        {
-            return motionCollision(sphereCollider, deltaTime, ref vcMagnitude);
-        }
-
+        collisionData = new CollisionData();
+        float vcMagnitude = 0.0f;
 
         Vector3 A = sphereCollider.transform.position - transform.position; // the vector from the centre of sphere one to center of sphere 2
         Vector3 V = RigidBody.Velocity; // the vector of motion
+
+        //first check if both colliders are in motion
+        if (RigidBody != null && sphereCollider.RigidBody != null)
+        {
+            if (motionCollision(sphereCollider, deltaTime, ref vcMagnitude))
+            {
+                collisionData.CollisionPoint = transform.position + (A.normalized * vcMagnitude);
+                Vector3 N = (collisionData.CollisionPoint - sphereCollider.transform.position).normalized;
+                collisionData.CollisionNormal = N;
+                return true;
+            }
+            return false;
+        }
+
 
         float aMagnitude = A.magnitude;
         float q = Mathf.Acos(Vector3.Dot(A.normalized, V.normalized)) * Mathf.Deg2Rad; //angle between A and V in radians
@@ -37,14 +47,18 @@ public class SphereCollider : BaseCollider
 
         //Debug.Log($"Distance: {d}  vc:{vcMagnitude}  v:{V.magnitude}  q:{q}  e:{e}");
 
-        return vcMagnitude <= V.magnitude * deltaTime;
+        if (vcMagnitude <= V.magnitude * deltaTime)
+        {
+            collisionData.CollisionPoint = transform.position + (A.normalized * vcMagnitude);
+            Vector3 N = (collisionData.CollisionPoint - sphereCollider.transform.position).normalized;
+            collisionData.CollisionNormal = N;
+            return true;
+        }
+
+        return false;
     }
 
-    public override bool CollisionOccured(PlaneCollider collider, float deltaTime, ref float vcMagnitude)
-    {
-        return collider.CollisionOccured(this,deltaTime, ref vcMagnitude);
-    }
-
+    //TODO convert to use collisionData
     private bool motionCollision(SphereCollider sphereCollider, float deltaTime, ref float vcMagnitude)
     {
         PhysicsRigidBody otherRigidBody = sphereCollider.RigidBody;
@@ -104,5 +118,10 @@ public class SphereCollider : BaseCollider
         result1 = 0;
         result2 = 0;
         return false;
+    }
+
+    void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position, Radius);
     }
 }

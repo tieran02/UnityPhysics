@@ -94,7 +94,8 @@ public class PhysicsRigidBody : MonoBehaviour
                 if (collider.RigidBody == null || collider == otherCollider)
                     continue;
 
-                if (collider.CollisionOccured(otherCollider, deltaTime, ref vc))
+                CollisionData collisionData;
+                if (collider.CollisionOccured(otherCollider, deltaTime, out collisionData))
                 {
                     //Vector3 newVelocity = Velocity.normalized * vc;
                     //Velocity = newVelocity;
@@ -102,7 +103,7 @@ public class PhysicsRigidBody : MonoBehaviour
                     if(otherCollider.RigidBody)
                         ApplyLinearResponse(otherCollider.RigidBody);
                     else
-                        ApplyLinearResponse();
+                        ApplyLinearResponse(collisionData.CollisionNormal);
                 }
             }
         }
@@ -138,15 +139,17 @@ public class PhysicsRigidBody : MonoBehaviour
         other.Velocity = V2;
     }
 
-    private void ApplyLinearResponse()
+    private void ApplyLinearResponse(Vector3 normal)
     {
         // Relative velocity
         Vector3 approachVelocity = Velocity;
+        Vector3 V1norm = approachVelocity.normalized;
+        Vector3 Vb = 2 * normal * Vector3.Dot(normal, -V1norm) + V1norm;
+        Vector3 newVelocity = Vb * approachVelocity.magnitude;
 
-        Vector3 J = (-approachVelocity * (RestitutionCoefficient + 1)) / ((1 / Mass));
+        Vector3 J = (newVelocity * (RestitutionCoefficient + 1)) / ((1 / Mass));
 
-        Vector3 V1 = (J / Mass) + Velocity;
-
+        Vector3 V1 = (J / Mass) - newVelocity;
         Velocity = V1;
     }
 }
