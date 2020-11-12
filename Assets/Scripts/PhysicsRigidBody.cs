@@ -16,19 +16,12 @@ public class PhysicsRigidBody : MonoBehaviour
 
     //RestitutionCoefficient: 0 = Perfectly Inelastic, RestitutionCoefficient: 1 = Elastic
     public float RestitutionCoefficient = 0.6f;
-
-    private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
-
-    public Vector3 lastPosition;
+    private Vector3 lastPosition;
     public Vector3 LastPosition => lastPosition;
-    public Vector3 lastVelocity;
+    private Vector3 lastVelocity;
     public Vector3 LastVelocity => lastVelocity;
-    public Vector3 lastMomentum;
-
     public Vector3 externalForces;
 
-    //net force, change of momentum in respects to time (lastMomentum / delta)
-    public Vector3 Fnet;
 
     private void Awake()
     {
@@ -38,11 +31,15 @@ public class PhysicsRigidBody : MonoBehaviour
 
     public void SetPosition(Vector3 Position)
     {
+        lastVelocity = Velocity;
+        lastPosition = transform.position;
         transform.position = Position;
     }
 
     public void TranslatePosition(Vector3 translation)
     {
+        lastVelocity = Velocity;
+        lastPosition = transform.position;
         transform.position += translation;
     }
 
@@ -71,52 +68,6 @@ public class PhysicsRigidBody : MonoBehaviour
     public Vector3 Force()
     {
         return Mass * Acceleration();
-    }
-
-
-    public void ApplyForces(float deltaTime)
-    {
-        externalForces = GRAVITY_FORCE * Mass;
-        Velocity += externalForces * deltaTime;
-    }
-
-    public void Collisions(BaseCollider[] colliders, float deltaTime)
-    {
-        //check for collision
-        BaseCollider collider = GetComponent<BaseCollider>();
-        if (collider != null)
-        {
-            float vc = 1.0f;
-
-            //check if sphere collides with other spheres
-            foreach (var otherCollider in colliders)
-            {
-                if (collider.RigidBody == null || collider == otherCollider)
-                    continue;
-
-                CollisionData collisionData;
-                if (collider.CollisionOccured(otherCollider, deltaTime, out collisionData))
-                {
-                    //Vector3 newVelocity = Velocity.normalized * vc;
-                    //Velocity = newVelocity;
-
-                    if(otherCollider.RigidBody)
-                        ApplyLinearResponse(otherCollider.RigidBody);
-                    else
-                        ApplyLinearResponse(collisionData.CollisionNormal);
-                }
-            }
-        }
-    }
-
-    public void Integrate(float deltaTime)
-    {
-        lastPosition = Position;
-        lastVelocity = Velocity;
-        lastMomentum = Momentum();
-        Fnet = lastMomentum / deltaTime;
-
-        TranslatePosition(Velocity * deltaTime);
     }
 
     public void AddLinearImpulse(Vector3 impulse)

@@ -51,9 +51,6 @@ public class EulerSolver : Solver
                 CollisionData collisionData;
                 if (collider.CollisionOccured(otherCollider, deltaTime, out collisionData))
                 {
-                    //Vector3 newVelocity = Velocity.normalized * vc;
-                    //Velocity = newVelocity;
-
                     if (otherCollider.RigidBody)
                         rigidBody.ApplyLinearResponse(otherCollider.RigidBody);
                     else
@@ -65,11 +62,6 @@ public class EulerSolver : Solver
 
     public void Integrate(PhysicsRigidBody rigidBody)
     {
-        rigidBody.lastPosition = rigidBody.Position;
-        rigidBody.lastVelocity = rigidBody.Velocity;
-        rigidBody.lastMomentum = rigidBody.Momentum();
-        rigidBody.Fnet = rigidBody.lastMomentum / deltaTime;
-
         rigidBody.TranslatePosition(rigidBody.Velocity * deltaTime);
     }
 }
