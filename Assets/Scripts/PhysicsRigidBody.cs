@@ -19,16 +19,16 @@ public class PhysicsRigidBody : MonoBehaviour
 
     private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
 
-    private Vector3 lastPosition;
+    public Vector3 lastPosition;
     public Vector3 LastPosition => lastPosition;
-    private Vector3 lastVelocity;
+    public Vector3 lastVelocity;
     public Vector3 LastVelocity => lastVelocity;
-    private Vector3 lastMomentum;
+    public Vector3 lastMomentum;
 
-    private Vector3 externalForces;
+    public Vector3 externalForces;
 
     //net force, change of momentum in respects to time (lastMomentum / delta)
-    private Vector3 Fnet;
+    public Vector3 Fnet;
 
     private void Awake()
     {
@@ -124,7 +124,7 @@ public class PhysicsRigidBody : MonoBehaviour
         Velocity += impulse;
     }
 
-    private void ApplyLinearResponse(PhysicsRigidBody other)
+    public void ApplyLinearResponse(PhysicsRigidBody other)
     {
         // Relative velocity
         Vector3 approachVelocity = Velocity - other.Velocity;
@@ -139,7 +139,7 @@ public class PhysicsRigidBody : MonoBehaviour
         other.Velocity = V2;
     }
 
-    private void ApplyLinearResponse(Vector3 normal)
+    public void ApplyLinearResponse(Vector3 normal)
     {
         // Relative velocity
         Vector3 approachVelocity = Velocity;
