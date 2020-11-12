@@ -9,7 +9,7 @@ public abstract class Solver
     protected float TimeStepSeconds;
     protected float deltaTime;
 
-    private double timeSinceLastStep;
+    private float timeSinceLastStep;
 
     protected Solver(float timeStepSeconds)
     {
@@ -24,7 +24,7 @@ public abstract class Solver
         if (timeSinceLastStep >= TimeStepSeconds)
         {
             NextStep();
-            timeSinceLastStep = 0.0;
+            timeSinceLastStep = 0.0f;
         }
     }
 
