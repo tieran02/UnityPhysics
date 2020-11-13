@@ -30,8 +30,8 @@ public class EulerSolver : Solver
 
     private void applyForce(PhysicsRigidBody rigidBody)
     {
-        rigidBody.externalForces = GRAVITY_FORCE * rigidBody.Mass;
-        rigidBody.Velocity += rigidBody.externalForces * deltaTime;
+        rigidBody.ExternalForces = GRAVITY_FORCE * rigidBody.Mass;
+        rigidBody.Velocity += rigidBody.ExternalForces * deltaTime;
     }
 
     public void Collisions(PhysicsRigidBody rigidBody)
@@ -63,5 +63,6 @@ public class EulerSolver : Solver
     public void Integrate(PhysicsRigidBody rigidBody)
     {
         rigidBody.TranslatePosition(rigidBody.Velocity * deltaTime);
+        rigidBody.TranslateOrientation(rigidBody.AngularVelocity * deltaTime);
     }
 }

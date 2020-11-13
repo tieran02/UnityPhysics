@@ -42,6 +42,10 @@ public class PlaneCollider : BaseCollider
 
     protected override void Awake()
     {
+        base.Awake();
+        
+        Shape = ColliderShape.PLANE;
+
         var meshFilter = GetComponent<MeshFilter>();
         if (meshFilter != null)
         {

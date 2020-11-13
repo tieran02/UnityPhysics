@@ -139,7 +139,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &24617330
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -154,10 +154,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.6
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &24617331
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -265,10 +267,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 10, y: 10, z: 5}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.6
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!23 &142193378
 MeshRenderer:
   m_ObjectHideFlags: 0
@@ -457,7 +461,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &283769020
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -472,10 +476,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.5
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &283769021
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -558,7 +564,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 515249942}
-  - component: {fileID: 515249941}
+  - component: {fileID: 515249943}
   m_Layer: 0
   m_Name: Solver
   m_TagString: Untagged
@@ -566,20 +572,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &515249941
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 515249940}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8704eac5c1bcd624f991b38ea1cbc395, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  RigidBodies: []
-  BaseColliders: []
 --- !u!4 &515249942
 Transform:
   m_ObjectHideFlags: 0
@@ -594,6 +586,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &515249943
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 515249940}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8704eac5c1bcd624f991b38ea1cbc395, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  RigidBodies: []
+  BaseColliders: []
 --- !u!1 &536977871
 GameObject:
   m_ObjectHideFlags: 0
@@ -613,7 +619,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &536977872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -628,10 +634,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.1
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &536977873
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -739,10 +747,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0.5, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &589639817
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -774,7 +784,7 @@ MeshRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 31321ba15b8f8eb4c954353edc038b1d, type: 2}
+  - {fileID: 2100000, guid: 39cf4b2b44931e64189c2bdc27f58b05, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -835,7 +845,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &722581556
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -850,10 +860,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.4
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &722581557
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -946,7 +958,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &789408169
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -961,10 +973,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.7
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &789408170
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1057,7 +1071,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &923214363
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1072,10 +1086,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.6
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &923214364
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1168,7 +1184,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1005576414
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1183,10 +1199,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
-  Mass: 1
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
+  Mass: 5
   CenterOfMass: {x: 0, y: 0, z: 0}
-  RestitutionCoefficient: 1
-  externalForces: {x: 0, y: 0, z: 0}
+  RestitutionCoefficient: 0.6
 --- !u!114 &1005576415
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1464,7 +1482,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1687340418
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1479,10 +1497,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.2
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &1687340419
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1575,7 +1595,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1739235928
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1590,10 +1610,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 10, y: 5, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.6
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &1739235929
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1686,7 +1708,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1800164024
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1701,10 +1723,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.9
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &1800164025
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1797,7 +1821,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1819429591
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1812,10 +1836,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.8
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &1819429592
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1908,7 +1934,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1953482601
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1923,10 +1949,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.6
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &1953482602
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2019,7 +2047,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &1998274338
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2034,10 +2062,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: -15, y: 8, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 2
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.6
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &1998274339
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2130,7 +2160,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!114 &2093990190
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -2145,10 +2175,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Velocity: {x: 0, y: 0, z: 0}
   InitialImpulse: {x: 0, y: 0, z: 0}
+  InitialAngularImpulse: {x: 0, y: 0, z: 0}
+  AngularVelocity: {x: 0, y: 0, z: 0}
+  Torques: {x: 0, y: 0, z: 0}
   Mass: 1
   CenterOfMass: {x: 0, y: 0, z: 0}
   RestitutionCoefficient: 0.3
-  externalForces: {x: 0, y: 0, z: 0}
 --- !u!114 &2093990191
 MonoBehaviour:
   m_ObjectHideFlags: 0

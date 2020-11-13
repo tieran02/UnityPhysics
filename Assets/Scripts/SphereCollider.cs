@@ -7,6 +7,12 @@ public class SphereCollider : BaseCollider
 {
     public float Radius = 0.5f;
 
+    protected override void Awake()
+    {
+        base.Awake();
+        Shape = ColliderShape.SPHERE;
+    }
+
     public override bool CollisionOccured(PlaneCollider collider, float deltaTime, out CollisionData collisionData)
     {
         return collider.CollisionOccured(this, deltaTime, out collisionData);

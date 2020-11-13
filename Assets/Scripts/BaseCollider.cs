@@ -13,7 +13,15 @@ public struct CollisionData
 
 public abstract class BaseCollider : MonoBehaviour
 {
+    public enum ColliderShape
+    {
+        PLANE,
+        SPHERE
+    }
+
     public PhysicsRigidBody RigidBody;
+
+    public ColliderShape Shape { get; protected set; }
 
     public abstract bool CollisionOccured(SphereCollider collider, float deltaTime, out CollisionData collisionData);
     public abstract bool CollisionOccured(PlaneCollider collider, float deltaTime, out CollisionData collisionData);
@@ -25,14 +33,12 @@ public abstract class BaseCollider : MonoBehaviour
 
     public bool CollisionOccured(BaseCollider collider, float deltaTime, ref float vcMagnitude)
     {
-        switch (collider)
+        switch (Shape)
         {
-            case SphereCollider sphereCollider:
-                return CollisionOccured(sphereCollider, deltaTime, ref vcMagnitude);
-                break;
-            case PlaneCollider planeCollider:
-                return CollisionOccured(planeCollider, deltaTime, ref vcMagnitude);
-                break;
+            case ColliderShape.SPHERE:
+                return CollisionOccured((SphereCollider)collider, deltaTime, ref vcMagnitude);
+            case ColliderShape.PLANE:
+                return CollisionOccured((PlaneCollider)collider, deltaTime, ref vcMagnitude);
         }
 
         return false;
