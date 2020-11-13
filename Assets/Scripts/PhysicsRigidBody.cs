@@ -137,18 +137,23 @@ public class PhysicsRigidBody : MonoBehaviour
         other.Velocity = V2;
     }
 
-    public void ApplyLinearResponse(Vector3 normal)
+    public void ApplyLinearResponse(CollisionData collisionData)
     {
         // Relative velocity
         Vector3 approachVelocity = Velocity;
         Vector3 V1norm = approachVelocity.normalized;
-        Vector3 Vb = 2 * normal * Vector3.Dot(normal, -V1norm) + V1norm;
+        Vector3 Vb = 2 * collisionData.CollisionNormal * Vector3.Dot(collisionData.CollisionNormal, -V1norm) + V1norm;
         Vector3 newVelocity = Vb * approachVelocity.magnitude;
 
         Vector3 J = (newVelocity * (RestitutionCoefficient + 1)) / ((1 / Mass));
 
         Vector3 V1 = (J / Mass) - newVelocity;
-        Velocity = V1;
+
+        Vector3 ang = Vector3.Cross(AngularVelocity * Time.fixedDeltaTime, (collisionData.CollisionPoint - CenterOfMass));
+        Velocity = V1 + ang ;
+
+        //angular velocity
+
     }
 
     public Matrix4x4 InverseTensor()
@@ -201,7 +206,7 @@ public class PhysicsRigidBody : MonoBehaviour
     public void RotationalImpulse(Vector3 point, Vector3 impulse)
     {
         Vector3 torque = Vector3.Cross(point - CenterOfMass, impulse);
-        Vector3 angularAcceleration = InverseTensor().MultiplyVector(torque) * Mathf.Rad2Deg;
+        Vector3 angularAcceleration = InverseTensor().MultiplyVector(torque);
         AngularVelocity += angularAcceleration;
     }
 }

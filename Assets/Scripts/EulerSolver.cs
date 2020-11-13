@@ -54,7 +54,7 @@ public class EulerSolver : Solver
                     if (otherCollider.RigidBody)
                         rigidBody.ApplyLinearResponse(otherCollider.RigidBody);
                     else
-                        rigidBody.ApplyLinearResponse(collisionData.CollisionNormal);
+                        rigidBody.ApplyLinearResponse(collisionData);
                 }
             }
         }
@@ -63,6 +63,6 @@ public class EulerSolver : Solver
     public void Integrate(PhysicsRigidBody rigidBody)
     {
         rigidBody.TranslatePosition(rigidBody.Velocity * deltaTime);
-        rigidBody.TranslateOrientation(rigidBody.AngularVelocity * deltaTime);
+        rigidBody.TranslateOrientation((rigidBody.AngularVelocity * Mathf.Rad2Deg) * deltaTime);
     }
 }
