@@ -91,8 +91,10 @@ public class PlaneCollider : BaseCollider
 
             if (vcMagnitude <= (V.magnitude * deltaTime))
             {
-                collisionData.CollisionPoint = collider.transform.position + (P.normalized * vcMagnitude);
+                Vector3 pNorm = P.normalized;
+                collisionData.ResolutionPoint = collider.transform.position + (pNorm * vcMagnitude);
                 collisionData.CollisionNormal = N;
+                collisionData.CollisionPoint = collisionData.ResolutionPoint + (V.normalized * collider.Radius);
                 return true;
             };
         }

@@ -7,8 +7,9 @@ using UnityEngine;
 
 public struct CollisionData
 {
-    public Vector3 CollisionPoint;
+    public Vector3 ResolutionPoint;
     public Vector3 CollisionNormal;
+    public Vector3 CollisionPoint;
 }
 
 public abstract class BaseCollider : MonoBehaviour

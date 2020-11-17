@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Assets.Scripts;
 using UnityEngine;
 
 public class EulerSolver : Solver
@@ -22,6 +23,9 @@ public class EulerSolver : Solver
     {
         foreach (var rigidBody in RigidBodies)
         {
+            if (rigidBody.State == PhysicsRigidBody.RigidbodyState.Sleep)
+                continue;
+
             applyForce(rigidBody);
             Collisions(rigidBody);
             Integrate(rigidBody);
@@ -32,6 +36,14 @@ public class EulerSolver : Solver
     {
         rigidBody.ExternalForces = GRAVITY_FORCE * rigidBody.Mass;
         rigidBody.Velocity += rigidBody.ExternalForces * deltaTime;
+
+        rigidBody.AngularVelocity = rigidBody.InverseTensor().MultiplyVector(rigidBody.AngularMomentum);
+        Quaternion q = new Quaternion(rigidBody.AngularVelocity.x, rigidBody.AngularVelocity.y,
+            rigidBody.AngularVelocity.z, 0.0f);
+
+        rigidBody.Spin = q.ScalarMultiply(0.5f) * rigidBody.Orientation;
+
+
     }
 
     public void Collisions(PhysicsRigidBody rigidBody)
@@ -51,10 +63,19 @@ public class EulerSolver : Solver
                 CollisionData collisionData;
                 if (collider.CollisionOccured(otherCollider, deltaTime, out collisionData))
                 {
+                    //collider.transform.position = collisionData.ResolutionPoint;
+                    Vector3 relativeVelocity = otherCollider.RigidBody
+                        ? otherCollider.RigidBody.Velocity - rigidBody.Velocity
+                        : rigidBody.Velocity;
+
+
+                    collider.transform.position = collisionData.ResolutionPoint;
                     if (otherCollider.RigidBody)
                         rigidBody.ApplyLinearResponse(otherCollider.RigidBody);
                     else
+                    {
                         rigidBody.ApplyLinearResponse(collisionData);
+                    }
                 }
             }
         }
@@ -63,6 +84,6 @@ public class EulerSolver : Solver
     public void Integrate(PhysicsRigidBody rigidBody)
     {
         rigidBody.TranslatePosition(rigidBody.Velocity * deltaTime);
-        rigidBody.TranslateOrientation((rigidBody.AngularVelocity * Mathf.Rad2Deg) * deltaTime);
+        rigidBody.transform.rotation = rigidBody.Spin;
     }
 }

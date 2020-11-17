@@ -31,8 +31,8 @@ public class SphereCollider : BaseCollider
         {
             if (motionCollision(sphereCollider, deltaTime, ref vcMagnitude))
             {
-                collisionData.CollisionPoint = transform.position + (A.normalized * vcMagnitude);
-                Vector3 N = (collisionData.CollisionPoint - sphereCollider.transform.position).normalized;
+                collisionData.ResolutionPoint = transform.position + (A.normalized * vcMagnitude);
+                Vector3 N = (collisionData.ResolutionPoint - sphereCollider.transform.position).normalized;
                 collisionData.CollisionNormal = N;
                 return true;
             }
@@ -55,8 +55,8 @@ public class SphereCollider : BaseCollider
 
         if (vcMagnitude <= V.magnitude * deltaTime)
         {
-            collisionData.CollisionPoint = transform.position + (A.normalized * vcMagnitude);
-            Vector3 N = (collisionData.CollisionPoint - sphereCollider.transform.position).normalized;
+            collisionData.ResolutionPoint = transform.position + (A.normalized * vcMagnitude);
+            Vector3 N = (collisionData.ResolutionPoint - sphereCollider.transform.position).normalized;
             collisionData.CollisionNormal = N;
             return true;
         }

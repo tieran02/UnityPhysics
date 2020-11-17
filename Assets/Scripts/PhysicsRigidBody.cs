@@ -17,6 +17,8 @@ public class PhysicsRigidBody : MonoBehaviour
     public Vector3 InitialImpulse;
     public Vector3 InitialAngularImpulse;
 
+    public Quaternion Spin;
+    public Vector3 AngularMomentum;
     public Vector3 AngularVelocity;
     public Vector3 Torques;
 
@@ -31,11 +33,11 @@ public class PhysicsRigidBody : MonoBehaviour
 
     #region Properties
     public Vector3 Position => transform.position;
-    public Vector3 Orientation => transform.eulerAngles;
+    public Quaternion Orientation => transform.rotation;
     public Vector3 LastPosition { get; private set; }
     public Vector3 LastVelocity { get; private set; }
     public Vector3 ExternalForces { get; set; }
-    public RigidbodyState State { get; private set; }
+    public RigidbodyState State { get; set; }
     public BaseCollider Collider { get; private set; }
     #endregion
 
@@ -149,8 +151,9 @@ public class PhysicsRigidBody : MonoBehaviour
 
         Vector3 V1 = (J / Mass) - newVelocity;
 
-        Vector3 ang = Vector3.Cross(AngularVelocity * Time.fixedDeltaTime, (collisionData.CollisionPoint - CenterOfMass));
-        Velocity = V1 + ang ;
+        Vector3 ang = Vector3.Cross(AngularVelocity * Time.fixedDeltaTime,
+            ((collisionData.CollisionPoint - transform.position) - CenterOfMass));
+        Velocity = V1;
 
         //angular velocity
 
@@ -207,6 +210,6 @@ public class PhysicsRigidBody : MonoBehaviour
     {
         Vector3 torque = Vector3.Cross(point - CenterOfMass, impulse);
         Vector3 angularAcceleration = InverseTensor().MultiplyVector(torque);
-        AngularVelocity += angularAcceleration;
+        AngularMomentum += angularAcceleration;
     }
 }
