@@ -95,6 +95,8 @@ public class PlaneCollider : BaseCollider
                 collisionData.ResolutionPoint = collider.transform.position + (pNorm * vcMagnitude);
                 collisionData.CollisionNormal = N;
                 collisionData.CollisionPoint = collisionData.ResolutionPoint + (V.normalized * collider.Radius);
+                collisionData.Angle = angle;
+                collisionData.VC = vcMagnitude;
                 return true;
             };
         }

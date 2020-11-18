@@ -10,6 +10,8 @@ public struct CollisionData
     public Vector3 ResolutionPoint;
     public Vector3 CollisionNormal;
     public Vector3 CollisionPoint;
+    public float Angle;
+    public float VC;
 }
 
 public abstract class BaseCollider : MonoBehaviour

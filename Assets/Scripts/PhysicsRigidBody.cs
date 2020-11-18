@@ -10,6 +10,7 @@ public class PhysicsRigidBody : MonoBehaviour
     public enum RigidbodyState
     {
         Active,
+        Sliding,
         Sleep
     }
 
@@ -55,17 +56,17 @@ public class PhysicsRigidBody : MonoBehaviour
 
     void FixedUpdate()
     {
-        float kineticEnergy = KineticEnergy();
-        if (kineticEnergy < 0.001f)
-        {
-            potentialSleepTime += Time.fixedDeltaTime;
+        //float kineticEnergy = KineticEnergy();
+        //if (kineticEnergy < 0.001f)
+        //{
+        //    potentialSleepTime += Time.fixedDeltaTime;
 
-            if (potentialSleepTime > 5.0f && State == RigidbodyState.Active)
-            {
-                State = RigidbodyState.Sleep;
-                potentialSleepTime = 0.0f;
-            }
-        }
+        //    if (potentialSleepTime > 5.0f && State == RigidbodyState.Active)
+        //    {
+        //        State = RigidbodyState.Sleep;
+        //        potentialSleepTime = 0.0f;
+        //    }
+        //}
     }
 
     public void SetPosition(Vector3 Position)
@@ -124,22 +125,29 @@ public class PhysicsRigidBody : MonoBehaviour
         Velocity += impulse;
     }
 
-    public void ApplyLinearResponse(PhysicsRigidBody other)
+    public void ApplyLinearResponse(CollisionData collisionData , PhysicsRigidBody other)
     {
-        // Relative velocity
-        Vector3 approachVelocity = Velocity - other.Velocity;
+        Vector3 responseA;
+        Vector3 responseB;
+        if (!other)
+            LinearResponse(collisionData, out responseA);
+        else
+        {
+            //other.State = RigidbodyState.Active;
+            LinearResponse(collisionData, other, out responseA, out responseB);
+            if (responseB.sqrMagnitude > 1.0f)
+                other.Velocity = responseB;
+            else
+                other.Velocity = Vector3.ProjectOnPlane(other.Velocity, collisionData.CollisionNormal);
+        }
 
-        //Restitution calculation (RestitutionCoefficient: 0 = Perfectly Inelastic, RestitutionCoefficient: 1 = Elastic)
-        Vector3 J = (-approachVelocity * (RestitutionCoefficient + 1)) / ((1 / Mass) + (1 / other.Mass));
-
-        Vector3 V1 = (J / Mass) + Velocity;
-        Vector3 V2 = (-J / other.Mass) + other.Velocity;
-
-        Velocity = V1;
-        other.Velocity = V2;
+        if (responseA.sqrMagnitude > 1.0f)
+            Velocity = responseA;
+        else
+            Velocity = Vector3.ProjectOnPlane(Velocity, collisionData.CollisionNormal);
     }
 
-    public void ApplyLinearResponse(CollisionData collisionData)
+    private void LinearResponse(CollisionData collisionData, out Vector3 response)
     {
         // Relative velocity
         Vector3 approachVelocity = Velocity;
@@ -153,10 +161,23 @@ public class PhysicsRigidBody : MonoBehaviour
 
         Vector3 ang = Vector3.Cross(AngularVelocity * Time.fixedDeltaTime,
             ((collisionData.CollisionPoint - transform.position) - CenterOfMass));
-        Velocity = V1;
 
-        //angular velocity
+        response =  V1 + ang;
+    }
 
+    private void LinearResponse(CollisionData collisionData, PhysicsRigidBody other, out Vector3 responseA, out Vector3 responseB)
+    {
+        // Relative velocity
+        Vector3 approachVelocity = Velocity - other.Velocity;
+
+        //Restitution calculation (RestitutionCoefficient: 0 = Perfectly Inelastic, RestitutionCoefficient: 1 = Elastic)
+        Vector3 J = (-approachVelocity * (RestitutionCoefficient + 1)) / ((1 / Mass) + (1 / other.Mass));
+
+        Vector3 V1 = (J / Mass) + Velocity;
+        Vector3 V2 = (-J / other.Mass) + other.Velocity;
+
+        responseA = V1;
+        responseB = V2;
     }
 
     public Matrix4x4 InverseTensor()

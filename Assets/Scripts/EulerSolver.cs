@@ -52,8 +52,6 @@ public class EulerSolver : Solver
         BaseCollider collider = rigidBody.GetComponent<BaseCollider>();
         if (collider != null)
         {
-            float vc = 1.0f;
-
             //check if sphere collides with other spheres
             foreach (var otherCollider in BaseColliders)
             {
@@ -63,23 +61,47 @@ public class EulerSolver : Solver
                 CollisionData collisionData;
                 if (collider.CollisionOccured(otherCollider, deltaTime, out collisionData))
                 {
+                    if (rigidBody.State == PhysicsRigidBody.RigidbodyState.Sliding && otherCollider.RigidBody != null)
+                    {
+                        otherCollider.RigidBody.State = PhysicsRigidBody.RigidbodyState.Active;
+                    }
+
                     //collider.transform.position = collisionData.ResolutionPoint;
                     Vector3 relativeVelocity = otherCollider.RigidBody
                         ? otherCollider.RigidBody.Velocity - rigidBody.Velocity
                         : rigidBody.Velocity;
 
 
-                    collider.transform.position = collisionData.ResolutionPoint;
-                    if (otherCollider.RigidBody)
-                        rigidBody.ApplyLinearResponse(otherCollider.RigidBody);
-                    else
+                    //check if the rigid body has no velocity relative to the surface normal (not moving away/towards the surface)
+                    //TODO check if both velocities are identical if so then both objects are at rest relative to another
+                    //TODO check if the angle between n and both/one the velocity are 90 (cos of angle = 0) then the two points are sliding
+
+                    Vector3 velocityWithoutExternalFoces = rigidBody.Velocity - (rigidBody.ExternalForces * deltaTime);
+                    float angleN = Vector3.Angle(velocityWithoutExternalFoces, collisionData.CollisionNormal.normalized);
+                    if (angleN == 90.0f)
                     {
-                        rigidBody.ApplyLinearResponse(collisionData);
+                        //rigidBody.State = PhysicsRigidBody.RigidbodyState.Sleep;
+                        rigidBody.State = PhysicsRigidBody.RigidbodyState.Sliding;
+                    }
+
+                    switch (rigidBody.State)
+                    {
+                        case PhysicsRigidBody.RigidbodyState.Active:
+                            rigidBody.ApplyLinearResponse(collisionData,otherCollider.RigidBody);
+                            break;
+                        case PhysicsRigidBody.RigidbodyState.Sliding:
+                            rigidBody.Velocity = Vector3.ProjectOnPlane(rigidBody.Velocity, collisionData.CollisionNormal);
+                            break;
+                        case PhysicsRigidBody.RigidbodyState.Sleep:
+                            break;
+                        default:
+                            throw new ArgumentOutOfRangeException();
                     }
                 }
             }
         }
     }
+
 
     public void Integrate(PhysicsRigidBody rigidBody)
     {
