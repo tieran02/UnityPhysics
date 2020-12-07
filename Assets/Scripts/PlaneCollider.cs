@@ -41,9 +41,7 @@ public class PlaneCollider : BaseCollider
     public bool IsInfinite = true;
 
     protected override void Awake()
-    {
-        base.Awake();
-        
+    {        
         Shape = ColliderShape.PLANE;
 
         var meshFilter = GetComponent<MeshFilter>();
@@ -57,6 +55,7 @@ public class PlaneCollider : BaseCollider
             plane.B = transform.TransformPoint(mesh.vertices[1]);
             plane.C = transform.TransformPoint(mesh.vertices[2]);
         }
+        base.Awake();
     }
 
     public override bool CollisionOccured(SphereCollider collider, float deltaTime, out CollisionData collisionData)
@@ -68,7 +67,7 @@ public class PlaneCollider : BaseCollider
 
         float angle = Vector3.Angle(N, -V);
 
-        if (angle <= 90.0f)
+        if (angle < 90.0f)
         {
             Vector3 k = plane.A; // an arbitrary point on the plane
             Vector3 P = collider.transform.position - k; //a vector from k to the start of the sphere

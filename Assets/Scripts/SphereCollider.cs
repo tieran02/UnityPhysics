@@ -9,8 +9,9 @@ public class SphereCollider : BaseCollider
 
     protected override void Awake()
     {
-        base.Awake();
         Shape = ColliderShape.SPHERE;
+
+        base.Awake();
     }
 
     public override bool CollisionOccured(PlaneCollider collider, float deltaTime, out CollisionData collisionData)
