@@ -57,8 +57,10 @@ public class EulerSolver : Solver
             //todo collisions
             Collisions(rigidBody, ref state);
 
+            ApplyConstraints(rigidBody, ref state);
+
             //todo intergrate
-            rigidBody.Integrate(state, deltaTime);
+            rigidBody.Integrate(ref state, deltaTime);
         }
     }
 
@@ -91,6 +93,13 @@ public class EulerSolver : Solver
         rigidState.Momentum += GravityForce * deltaTime;
     }
 
+    private void ApplyConstraints(PhysicsRigidBody rigidBody, ref RigidStateVector rigidState)
+    {
+        if (rigidState.Momentum.sqrMagnitude < 0.01)
+        {
+            rigidState.Momentum = Vector3.zero;
+        }
+    }
     /*private void applyForce(PhysicsRigidBody rigidBody)
     {
         rigidBody.ExternalForces = GRAVITY_FORCE * rigidBody.Mass;
@@ -120,10 +129,6 @@ public class EulerSolver : Solver
                 CollisionData collisionData;
                 if (collider.CollisionOccured(otherCollider, deltaTime, out collisionData))
                 {
-                    rigidState.Momentum = Vector3.zero;
-                    return;
-
-
                     if (otherCollider.RigidBody != null && otherCollider.RigidBody.State != PhysicsRigidBody.RigidbodyState.Sliding)
                     {
                         //if collided with other and the other object is not sliding set the other rigid body to awake
@@ -135,8 +140,8 @@ public class EulerSolver : Solver
                     //TODO check if the angle between n and both/one the velocity are 90 (cos of angle = 0) then the two points are sliding
 
                     //Vector3 velocityWithoutExternalFoces = rigidBody.Velocity - (rigidBody.ExternalForces * deltaTime);
-                    float angleN = Vector3.Angle(rigidState.Momentum, collisionData.CollisionNormal.normalized);
-                    if (angleN == 90.0f)
+                    float angleN = Vector3.Angle(rigidBody.Velocity, collisionData.CollisionNormal.normalized);
+                    if (angleN == 0.0f)
                     {
                         //rigidBody.State = PhysicsRigidBody.RigidbodyState.Sleep;
                         rigidBody.State = PhysicsRigidBody.RigidbodyState.Sliding;
@@ -146,9 +151,9 @@ public class EulerSolver : Solver
                     {
                         case PhysicsRigidBody.RigidbodyState.Active:
                             if(otherCollider.RigidBody?.State != PhysicsRigidBody.RigidbodyState.Sliding)
-                                rigidBody.ApplyLinearResponse(collisionData,otherCollider.RigidBody);
+                                ApplyLinearResponse(rigidBody, ref rigidState, collisionData,otherCollider.RigidBody);
                             else
-                                rigidBody.ApplyLinearResponse(collisionData, null);
+                                ApplyLinearResponse(rigidBody, ref rigidState, collisionData, null);
                             break;
                         case PhysicsRigidBody.RigidbodyState.Sliding:
                             rigidState.Momentum = Vector3.ProjectOnPlane(rigidBody.Velocity, collisionData.CollisionNormal);
@@ -161,6 +166,71 @@ public class EulerSolver : Solver
                 }
             }
         }
+    }
+
+    public void ApplyLinearResponse(PhysicsRigidBody rigidBody, ref RigidStateVector rigidState, CollisionData collisionData, PhysicsRigidBody other)
+    {
+        Vector3 responseA;
+        Vector3 responseB;
+
+        Vector3 angularVelocity;
+        if (!other)
+            LinearResponse(rigidBody,ref rigidState, collisionData, out responseA, out angularVelocity);
+        else
+        {
+            //other.State = RigidbodyState.Active;
+            LinearResponse(rigidBody, ref rigidState, collisionData, other, out responseA, out responseB);
+            if (responseB.sqrMagnitude > 0.5f)
+            {
+                other.AddLinearImpulse(responseB);
+                //other.Velocity = responseB;
+            }
+            else
+            {
+                other.AddLinearImpulse(Vector3.ProjectOnPlane(other.Velocity, collisionData.CollisionNormal));
+            }
+        }
+
+        if (responseA.sqrMagnitude > 0.5f)
+            rigidState.Momentum = responseA;
+        else
+            rigidState.Momentum = Vector3.ProjectOnPlane(rigidState.Velocity(), collisionData.CollisionNormal);
+    }
+
+    private void LinearResponse(PhysicsRigidBody rigidBody, ref RigidStateVector rigidState, CollisionData collisionData, out Vector3 response, out Vector3 angularVelocity)
+    {
+        // Relative velocity
+        Vector3 approachVelocity = rigidState.Velocity();
+        Vector3 V1norm = approachVelocity.normalized;
+        Vector3 Vb = 2 * collisionData.CollisionNormal * Vector3.Dot(collisionData.CollisionNormal, -V1norm) + V1norm;
+        Vector3 newVelocity = Vb * approachVelocity.magnitude;
+
+        Vector3 J = (newVelocity * (rigidBody.Data.RestitutionCoefficient + 1)) / ((1 / rigidBody.Mass));
+
+        Vector3 V1 = (J / rigidBody.Mass) - newVelocity;
+
+        //angularVelocity = Vector3.Cross(AngularVelocity * Time.fixedDeltaTime, ((collisionData.CollisionPoint - transform.position) - rigidbodyData.CenterOfMass));
+        angularVelocity = Vector3.zero;
+
+        response = V1;
+    }
+
+    private void LinearResponse(PhysicsRigidBody rigidBody, ref RigidStateVector rigidState, CollisionData collisionData, PhysicsRigidBody other, out Vector3 responseA, out Vector3 responseB)
+    {
+        // Relative velocity
+        Vector3 r1 = collisionData.CollisionPoint - rigidState.Position;
+        Vector3 r2 = collisionData.CollisionPoint - other.Position;
+
+        Vector3 approachVelocity = (rigidState.Velocity()) - (other.Velocity);
+
+        //Restitution calculation (RestitutionCoefficient: 0 = Perfectly Inelastic, RestitutionCoefficient: 1 = Elastic)
+        Vector3 J = (-approachVelocity * (rigidBody.Data.RestitutionCoefficient + 1)) / ((1 / rigidBody.Mass) + (1 / other.Mass));
+
+        Vector3 V1 = (J / rigidBody.Mass) + rigidState.Velocity();
+        Vector3 V2 = (-J / other.Mass) + other.Velocity;
+
+        responseA = V1;
+        responseB = V2;
     }
 
 

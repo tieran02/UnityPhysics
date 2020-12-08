@@ -15,6 +15,11 @@ public class PhysicsSolver : MonoBehaviour
     {
         RigidBodies = FindObjectsOfType<PhysicsRigidBody>();
         BaseColliders = FindObjectsOfType<BaseCollider>();
+        
+    }
+
+    private void Start()
+    {
         eulerSolver = new EulerSolver(RigidBodies, BaseColliders);
     }
 

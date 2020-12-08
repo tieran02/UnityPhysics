@@ -198,9 +198,9 @@ MonoBehaviour:
     Forces: {x: 0, y: 0, z: 0}
     Torque: {x: 0, y: 0, z: 0}
     CenterOfMass: {x: 0, y: 0, z: 0}
-    RestitutionCoefficient: 0
+    RestitutionCoefficient: 0.6
     collider: {fileID: 0}
-  InitialImpulse: {x: 10, y: 10, z: 0}
+  InitialImpulse: {x: 10, y: 0, z: 0}
   InitialAngularImpulse: {x: 0, y: 0, z: 0}
 --- !u!23 &142193378
 MeshRenderer:
@@ -571,7 +571,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!64 &593912448
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -867,7 +867,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!64 &1892805395
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -978,7 +978,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!64 &1933930713
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1089,7 +1089,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!64 &2092420467
 MeshCollider:
   m_ObjectHideFlags: 0

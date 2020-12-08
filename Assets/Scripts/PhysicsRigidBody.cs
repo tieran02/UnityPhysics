@@ -93,6 +93,7 @@ public class PhysicsRigidBody : MonoBehaviour
         rigidbodyData.collider = GetComponent<BaseCollider>();
         rigidbodyData.InertiaTensor = Tensor();
         rigidbodyData.InverseMass = rigidbodyData.CalculateInverseMass();
+        rigidbodyData.Position = transform.position;
     }
 
     void Start()
@@ -150,10 +151,12 @@ public class PhysicsRigidBody : MonoBehaviour
         rigidbodyData.Velocity += impulse;
     }
 
-    public void Integrate(RigidStateVector state, float deltaTime)
+    public void Integrate(ref RigidStateVector state, float deltaTime)
     {
         rigidbodyData.Velocity = state.Velocity();
+
         transform.position += rigidbodyData.Velocity * deltaTime;
+        rigidbodyData.Position = transform.position;
         //TODO add angular velocity
     }
 
