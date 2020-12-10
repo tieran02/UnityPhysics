@@ -10,11 +10,15 @@ public struct RigidStateVector
     public Vector3 Position;
     public Quaternion Rotation;
     public Vector3 Momentum;
+    public Quaternion Orientation;
     public Vector3 AngularMomentum;
 
     //secondary vars
     public readonly float Mass;
     public readonly float InverseMass;
+
+    public readonly Matrix4x4 Inertia;
+    public readonly Matrix4x4 Inverseinertia;
 
     public RigidStateVector(RigidbodyData data)
     {
@@ -22,6 +26,10 @@ public struct RigidStateVector
         Rotation = default;
         Momentum = default;
         AngularMomentum = default;
+        Orientation = data.Orientation;
+
+        Inertia = data.InertiaTensor;
+        Inverseinertia = data.InverseInertiaTensor;
 
         Mass = data.Mass;
         InverseMass = Mass == 0 ? 0 : 1.0f / Mass;
@@ -30,6 +38,18 @@ public struct RigidStateVector
     public Vector3 Velocity()
     {
         return Momentum * InverseMass;
+    }
+
+    public Vector3 AngularVelocity()
+    {
+        return Inverseinertia.MultiplyVector(AngularMomentum);
+    }
+
+    public Quaternion Spin()
+    {
+        var angularVelocity = AngularVelocity();
+        Quaternion q = new Quaternion(angularVelocity.x, angularVelocity.y, angularVelocity.z, 1.0f);
+        return q.ScalarMultiply(0.5f) * Orientation;
     }
 }
 
@@ -44,7 +64,7 @@ public struct RigidbodyData
     public Vector3 Position;
     public Vector3 Velocity;
     public Vector3 Acceleration;
-    public Vector3 AngularAcceleration;
+    public Vector3 AngularMomentum;
     public Vector3 AngularVelocity;
     public Quaternion Orientation;
     public Vector3 Forces;
@@ -82,6 +102,7 @@ public class PhysicsRigidBody : MonoBehaviour
     public Vector3 Velocity => rigidbodyData.Velocity;
     public Vector3 AngularVelocity => rigidbodyData.AngularVelocity;
     public Vector3 Position => rigidbodyData.Position;
+    public Vector3 Torque => rigidbodyData.Torque;
     public Quaternion Orientation => rigidbodyData.Orientation;
     public BaseCollider Collider => rigidbodyData.collider;
     public RigidbodyState State {get ;set; }
@@ -92,6 +113,8 @@ public class PhysicsRigidBody : MonoBehaviour
     {
         rigidbodyData.collider = GetComponent<BaseCollider>();
         rigidbodyData.InertiaTensor = Tensor();
+        rigidbodyData.InverseInertiaTensor = rigidbodyData.InertiaTensor.inverse;
+        rigidbodyData.Orientation = transform.rotation;
         rigidbodyData.InverseMass = rigidbodyData.CalculateInverseMass();
         rigidbodyData.Position = transform.position;
     }
@@ -166,6 +189,15 @@ public class PhysicsRigidBody : MonoBehaviour
         transform.position = rigidbodyData.Position;
 
         //TODO add angular velocity
+        rigidbodyData.Orientation = Quaternion.Euler(rigidbodyData.Orientation.eulerAngles + (state.Spin().eulerAngles * deltaTime));
+        transform.rotation = rigidbodyData.Orientation;
+
+        //apply angulat velocity
+        rigidbodyData.Torque = state.AngularMomentum * rigidbodyData.Mass;
+        rigidbodyData.AngularMomentum = state.AngularMomentum;
+        rigidbodyData.AngularVelocity = Vector3.Cross(state.AngularVelocity() * deltaTime, transform.position - rigidbodyData.CenterOfMass);
+
+        rigidbodyData.Velocity += rigidbodyData.AngularVelocity;
     }
 
     public void ApplyLinearResponse(CollisionData collisionData , PhysicsRigidBody other)
@@ -205,7 +237,7 @@ public class PhysicsRigidBody : MonoBehaviour
         Vector3 V1 = (J / Mass) - newVelocity;
 
         angularVelocity = Vector3.Cross(AngularVelocity * Time.fixedDeltaTime,
-            ((collisionData.CollisionPoint - transform.position) - rigidbodyData.CenterOfMass));
+            ((collisionData.ContactPoint - transform.position) - rigidbodyData.CenterOfMass));
 
         response =  V1 ;
     }
@@ -213,8 +245,8 @@ public class PhysicsRigidBody : MonoBehaviour
     private void LinearResponse(CollisionData collisionData, PhysicsRigidBody other, out Vector3 responseA, out Vector3 responseB)
     {
         // Relative velocity
-        Vector3 r1 = collisionData.CollisionPoint - Position;
-        Vector3 r2 = collisionData.CollisionPoint - other.Position;
+        Vector3 r1 = collisionData.ContactPoint - Position;
+        Vector3 r2 = collisionData.ContactPoint - other.Position;
 
         Vector3 approachVelocity = (Velocity) - (other.Velocity);
 
@@ -294,8 +326,8 @@ public class PhysicsRigidBody : MonoBehaviour
 
     public void AddRotationalImpulse(Vector3 point, Vector3 impulse)
     {
-        Vector3 torque = Vector3.Cross(point - rigidbodyData.CenterOfMass, impulse);
-        rigidbodyData.AngularVelocity = InverseTensor().MultiplyVector(torque);
+        rigidbodyData.Torque += Vector3.Cross(point - rigidbodyData.CenterOfMass, impulse);
+        //rigidbodyData.AngularVelocity = InverseTensor().MultiplyVector(torque);
         //AngularMomentum += AngularVelocity;
     }
 }

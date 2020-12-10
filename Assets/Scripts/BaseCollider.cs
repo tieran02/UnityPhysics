@@ -9,7 +9,8 @@ public struct CollisionData
 {
     public Vector3 ResolutionPoint;
     public Vector3 CollisionNormal;
-    public Vector3 CollisionPoint;
+    public Vector3 ContactPoint;
+    public float PenetrationDepth;
     public float Angle;
     public float VC;
 }

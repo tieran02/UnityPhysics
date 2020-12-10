@@ -38,6 +38,7 @@ public class EulerSolver : Solver
             RigidStateVector state = States[i];
             state.Position = rigidBody.Position;
             state.Momentum = rigidBody.Momentum();
+            state.Orientation = rigidBody.Orientation;
 
             IdleState(rigidBody, ref state);
             if(rigidBody.State == PhysicsRigidBody.RigidbodyState.Sleep)
@@ -56,11 +57,8 @@ public class EulerSolver : Solver
 
             ApplyPositionState(rigidBody, ref state, deltaTime);
 
-            ApplyConstraints(rigidBody, ref state);
-
-
             //TODO apply state to rigidbody before collision check
-            rigidBody.ApplyState(state);
+            rigidBody.Integrate(ref state, deltaTime);
 
             //todo collisions
             Collisions(rigidBody, ref state);
@@ -89,8 +87,9 @@ public class EulerSolver : Solver
 
     void ApplyAngularMomentumState(PhysicsRigidBody rigidBody, ref RigidStateVector rigidState)
     {
-        //TODO angular momentum
-        //rigidState.AngularMomentum = rigidBody.
+        //TODO angular momentun
+        Vector3 torque = rigidBody.Torque;
+        rigidState.AngularMomentum = torque * 0.5f;
     }
 
     private void ApplyExternalForces(PhysicsRigidBody rigidBody, ref RigidStateVector rigidState, float deltaTime)
@@ -103,13 +102,6 @@ public class EulerSolver : Solver
         rigidState.Momentum += GravityForce * deltaTime;
     }
 
-    private void ApplyConstraints(PhysicsRigidBody rigidBody, ref RigidStateVector rigidState)
-    {
-        if (rigidState.Momentum.sqrMagnitude < 0.02)
-        {
-            //rigidState.Momentum = Vector3.zero;
-        }
-    }
     /*private void applyForce(PhysicsRigidBody rigidBody)
     {
         rigidBody.ExternalForces = GRAVITY_FORCE * rigidBody.Mass;
@@ -139,7 +131,7 @@ public class EulerSolver : Solver
                     idleTime[rigidBody] += deltaTime;
                     if (idleTime[rigidBody] >= idleFrameTime)
                     {
-                        rigidBody.State = PhysicsRigidBody.RigidbodyState.Sliding;
+                        //rigidBody.State = PhysicsRigidBody.RigidbodyState.Sliding;
                         idleTime[rigidBody] = 0.0f;
                     }
                 }
@@ -192,7 +184,8 @@ public class EulerSolver : Solver
                     //TODO check if both velocities are identical if so then both objects are at rest relative to another
                     //TODO check if the angle between n and both/one the velocity are 90 (cos of angle = 0) then the two points are sliding
 
-                    //Vector3 velocityWithoutExternalFoces = rigidBody.Velocity - (rigidBody.ExternalForces * deltaTime);
+                    //TODO: somehow remove external forces from this check
+                    //Vector3 velocityWithoutExternalFoces = rigidBody.Velocity - (rigidBody.Momentum);
                     float angleN = Vector3.Angle(rigidBody.Velocity, collisionData.CollisionNormal);
                     if (angleN == 0.0f)
                     {
@@ -255,14 +248,14 @@ public class EulerSolver : Solver
         angularVelocity = Vector3.zero;
 
         response = V1;
-        //rigidState.Position = collisionData.ResolutionPoint;
+        rigidState.Position += V1norm * collisionData.VC;
     }
 
     private void LinearResponse(PhysicsRigidBody rigidBody, ref RigidStateVector rigidState, CollisionData collisionData, PhysicsRigidBody other, out Vector3 responseA, out Vector3 responseB)
     {
         // Relative velocity
-        Vector3 r1 = collisionData.CollisionPoint - rigidState.Position;
-        Vector3 r2 = collisionData.CollisionPoint - other.Position;
+        Vector3 r1 = collisionData.ContactPoint - rigidState.Position;
+        Vector3 r2 = collisionData.ContactPoint - other.Position;
 
         Vector3 approachVelocity = (rigidState.Velocity()) - (other.Velocity);
 
