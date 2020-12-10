@@ -102,6 +102,13 @@ public class PhysicsRigidBody : MonoBehaviour
         AddRotationalImpulse(Vector3.up, InitialAngularImpulse);
     }
 
+    public void ApplyState(RigidStateVector state)
+    {
+        rigidbodyData.Position = state.Position;
+        rigidbodyData.Velocity = state.Velocity();
+        transform.position = rigidbodyData.Position;
+    }
+
     public void SetPosition(Vector3 Position)
     {
         rigidbodyData.Position = Position;
@@ -154,9 +161,10 @@ public class PhysicsRigidBody : MonoBehaviour
     public void Integrate(ref RigidStateVector state, float deltaTime)
     {
         rigidbodyData.Velocity = state.Velocity();
+        rigidbodyData.Position = state.Position;
 
-        transform.position += rigidbodyData.Velocity * deltaTime;
-        rigidbodyData.Position = transform.position;
+        transform.position = rigidbodyData.Position;
+
         //TODO add angular velocity
     }
 

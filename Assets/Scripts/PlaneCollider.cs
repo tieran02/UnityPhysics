@@ -62,7 +62,7 @@ public class PlaneCollider : BaseCollider
     {
         collisionData = new CollisionData();
 
-        Vector3 N = plane.Normal();
+        Vector3 N = -transform.forward;
         Vector3 V = collider.RigidBody.Velocity;
 
         float angle = Vector3.Angle(N, -V);
