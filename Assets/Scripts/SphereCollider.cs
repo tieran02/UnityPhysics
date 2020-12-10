@@ -35,6 +35,7 @@ public class SphereCollider : BaseCollider
                 collisionData.ResolutionPoint = transform.position + (A.normalized * vcMagnitude);
                 Vector3 N = (collisionData.ResolutionPoint - sphereCollider.transform.position).normalized;
                 collisionData.CollisionNormal = N;
+                collisionData.VC = vcMagnitude;
                 return true;
             }
             return false;
@@ -59,6 +60,7 @@ public class SphereCollider : BaseCollider
             collisionData.ResolutionPoint = transform.position + (A.normalized * vcMagnitude);
             Vector3 N = (collisionData.ResolutionPoint - sphereCollider.transform.position).normalized;
             collisionData.CollisionNormal = N;
+            collisionData.VC = vcMagnitude;
             return true;
         }
 

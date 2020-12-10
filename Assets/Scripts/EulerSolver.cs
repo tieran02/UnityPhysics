@@ -102,19 +102,6 @@ public class EulerSolver : Solver
         rigidState.Momentum += GravityForce * deltaTime;
     }
 
-    /*private void applyForce(PhysicsRigidBody rigidBody)
-    {
-        rigidBody.ExternalForces = GRAVITY_FORCE * rigidBody.Mass;
-        rigidBody.Velocity += rigidBody.ExternalForces * deltaTime;
-
-        rigidBody.AngularVelocity = rigidBody.InverseTensor().MultiplyVector(rigidBody.AngularMomentum);
-        Quaternion q = new Quaternion(rigidBody.AngularVelocity.x, rigidBody.AngularVelocity.y,
-            rigidBody.AngularVelocity.z, 0.0f);
-
-        rigidBody.Spin = q.ScalarMultiply(0.5f) * rigidBody.Orientation;
-
-
-    }*/
     private void IdleState(PhysicsRigidBody rigidBody, ref RigidStateVector rigidState)
     {
         const float sleepThreshold = 0.02f;
@@ -258,14 +245,19 @@ public class EulerSolver : Solver
         Vector3 r2 = collisionData.ContactPoint - other.Position;
 
         Vector3 approachVelocity = (rigidState.Velocity()) - (other.Velocity);
+        Vector3 V1norm = approachVelocity.normalized;
+        Vector3 Vb = 2 * collisionData.CollisionNormal * Vector3.Dot(collisionData.CollisionNormal, -V1norm) + V1norm;
+        Vector3 newVelocity = Vb * approachVelocity.magnitude;
 
         //Restitution calculation (RestitutionCoefficient: 0 = Perfectly Inelastic, RestitutionCoefficient: 1 = Elastic)
         Vector3 J = (-approachVelocity * (rigidBody.Data.RestitutionCoefficient + 1)) / ((1 / rigidBody.Mass) + (1 / other.Mass));
 
-        Vector3 V1 = (J / rigidBody.Mass) + rigidState.Velocity();
-        Vector3 V2 = (-J / other.Mass) + other.Velocity;
+        Vector3 V1 = (J / rigidBody.Mass) + newVelocity;
+        Vector3 V2 = (-J / other.Mass) - newVelocity;
 
         responseA = V1;
         responseB = V2;
+
+        rigidState.Position += V1.normalized * collisionData.VC;
     }
 }
