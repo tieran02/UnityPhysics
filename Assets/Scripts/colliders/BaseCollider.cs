@@ -20,7 +20,8 @@ public abstract class BaseCollider : MonoBehaviour
     public enum ColliderShape
     {
         PLANE,
-        SPHERE
+        SPHERE,
+        POINT,
     }
 
     public PhysicsRigidBody RigidBody;
@@ -29,6 +30,7 @@ public abstract class BaseCollider : MonoBehaviour
 
     public abstract bool CollisionOccured(SphereCollider collider, float deltaTime, out CollisionData collisionData);
     public abstract bool CollisionOccured(PlaneCollider collider, float deltaTime, out CollisionData collisionData);
+    public abstract bool CollisionOccured(Vector3 point, Vector3 velocity, float deltaTime, out CollisionData collisionData);
 
     protected virtual void Awake()
     {

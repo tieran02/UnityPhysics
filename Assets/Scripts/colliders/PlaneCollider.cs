@@ -109,6 +109,52 @@ public class PlaneCollider : BaseCollider
         throw new System.NotImplementedException();
     }
 
+    //TODO implement point collision
+    public override bool CollisionOccured(Vector3 point, Vector3 velocity, float deltaTime, out CollisionData collisionData)
+    {
+        collisionData = new CollisionData();
+
+        Vector3 N = plane.Normal();
+        Vector3 V = velocity;
+
+        float angle = Vector3.Angle(N, -V);
+
+        if (angle < 90.0f)
+        {
+            Vector3 k = plane.A; // an arbitrary point on the plane
+            Vector3 P = point - k; //a vector from k to the start of the sphere
+
+            float q1 = Vector3.Angle(P, N);
+            float q2 = (90.0f - q1) * Mathf.Deg2Rad;
+
+            float s = Vector3.Angle(V, -N) * Mathf.Deg2Rad;
+
+            float distance = Mathf.Sin(q2) * P.magnitude;
+
+            //If the plane is finite, check if the colliers point is within the finite plane
+            if (!IsInfinite && !IsPointOnFinitePlane(point, distance, N))
+            {
+                return false;
+            }
+
+            float vcMagnitude = distance;
+
+
+            if (vcMagnitude <= (V.magnitude * deltaTime))
+            {
+                Vector3 pNorm = P.normalized;
+                collisionData.ResolutionPoint = point + (pNorm * vcMagnitude);
+                collisionData.CollisionNormal = N;
+                collisionData.ContactPoint = collisionData.ResolutionPoint;
+                collisionData.Angle = angle;
+                collisionData.VC = vcMagnitude;
+                return true;
+            };
+        }
+
+        return false;
+    }
+
     private bool IsPointOnFinitePlane(Vector3 point, float distance, Vector3 normal)
     {
         //get the coplanar point
@@ -158,6 +204,4 @@ public class PlaneCollider : BaseCollider
         Gizmos.DrawLine(plane.A, plane.B);
         Gizmos.DrawLine(plane.C, plane.A);
     }
-
-
 }

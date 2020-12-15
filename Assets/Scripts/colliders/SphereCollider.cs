@@ -67,6 +67,12 @@ public class SphereCollider : BaseCollider
         return false;
     }
 
+    //TODO implement point collision
+    public override bool CollisionOccured(Vector3 point, Vector3 velocity, float deltaTime, out CollisionData collisionData)
+    {
+        throw new System.NotImplementedException();
+    }
+
     //TODO convert to use collisionData
     private bool motionCollision(SphereCollider sphereCollider, float deltaTime, ref float vcMagnitude)
     {
