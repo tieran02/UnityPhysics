@@ -24,6 +24,11 @@ public class SPHSystemSolver : Solver
         particleData = new ParticleSystemData(numberOfParticles);
         newPositions = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles));
         newVelocities = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles));
+
+        for (int i = 0; i < numberOfParticles; i++)
+        {
+            particleData.particleSet.Positions[i] = new Vector3(i*3.0f, 0, 0);
+        }
     }
 
     protected override void NextStep()
@@ -83,8 +88,12 @@ public class SPHSystemSolver : Solver
 
     private void beginTimeStep()
     {
+        particleData.BuildNeighborSearcher(1.0f);
+        particleData.BuildNeighborLists(1.0f);
+        particleData.UpdateDensities();
+
         //reset forces, pos, velocities and densities in parallel
-        Parallel.For(0, particleData.Size, index =>
+        Parallel.For(0, particleData.Size, (index, loopState) =>
         {
             particleData.particleSet.Forces[index] = Vector3.zero;
             newPositions[index] = Vector3.zero;

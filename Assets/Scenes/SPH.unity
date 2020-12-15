@@ -557,7 +557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 575de44abece9c049a0d9c6837d74f63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumberOfParticles: 1000
+  NumberOfParticles: 50
   planeColliders:
   - {fileID: 162486396}
   SpawnPos: {fileID: 0}
