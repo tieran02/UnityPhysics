@@ -35,6 +35,7 @@ public class ParticleSystemData
     public int Size => particleSet.Positions.Count;
     public float Mass => mass;
     public float Radius => radius;
+    public float KernalRadius => kernalRadius;
 
     public ParticleSystemData(int particleCount)
     {
@@ -57,7 +58,7 @@ public class ParticleSystemData
 
     public void BuildNeighborSearcher(float maxSearchRadius)
     {
-        neighborSearcher = new PointHashSearcher(Vector3Int.one * 64, 2.0f * maxSearchRadius);
+        neighborSearcher = new PointHashSearcher(Vector3Int.one * 128, 2.0f * maxSearchRadius);
         neighborSearcher.Build(particleSet.Positions);
     }
 
@@ -109,5 +110,50 @@ public class ParticleSystemData
         });
 
         return sum;
+    }
+
+    Vector3 GradiantAt(int i, List<float> values)
+    {
+        Vector3 sum = Vector3.zero;
+        var p = particleSet.Positions;
+        var d = particleSet.Densities;
+        var neighbors = neighborLists[i];
+        Vector3 origin = p[i];
+        SPHSpikeyKernal kernal = new SPHSpikeyKernal(KernalRadius);
+
+        foreach (var neighbor in neighbors)
+        {
+            Vector3 neighborPosition = p[neighbor];
+            float distance = Vector3.Distance(origin, neighborPosition);
+            if(distance > 0.0f)
+            {
+                Vector3 direction = (neighborPosition - origin) / distance;
+                sum += d[i] * mass * (values[i] / square(d[i]) + values[neighbor] / square(d[neighbor])) * kernal.Gradiant(distance, direction);
+            }
+        }
+        return sum;
+    }
+
+    float LaplacianAt(int i, List<float> values)
+    {
+        float sum = 0.0f;
+        var p = particleSet.Positions;
+        var d = particleSet.Densities;
+        var neighbors = neighborLists[i];
+        Vector3 origin = p[i];
+        SPHSpikeyKernal kernal = new SPHSpikeyKernal(KernalRadius);
+
+        foreach (var neighbor in neighbors)
+        {
+            Vector3 neighborPosition = p[neighbor];
+            float distance = Vector3.Distance(origin, neighborPosition);
+            sum += mass * (values[neighbor] - values[i]) / d[neighbor] * kernal.SecondDerivative(distance);
+        }
+        return sum;
+    }
+
+    float square(float value)
+    {
+        return value * value;
     }
 }

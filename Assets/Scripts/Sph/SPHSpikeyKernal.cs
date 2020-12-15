@@ -2,39 +2,40 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public struct SPHKernal
+public struct SPHSpikeyKernal
 {
-    float h, h2, h3, h5;
+    float h, h2, h3, h4, h5;
 
-    public SPHKernal(float kernalRadius)
+    public SPHSpikeyKernal(float kernalRadius)
     {
         h = kernalRadius;
         h2 = h * h;
         h3 = h2 * h;
-        h5 = h2 * h3;
+        h4 = h3 * h;
+        h5 = h4 * h;
     }
 
     public float Value(float distance)
     {
-        if (distance * distance >= h2)
+        if (distance >= h)
             return 0.0f;
         else
         {
-            float x = 1.0f - distance * distance / h2;
-            return 315.0f / (64.0f * Mathf.PI * h3) * x * x * x;
+            float x = 1.0f - distance / h;
+            return 15.0f / (Mathf.PI * h3) * x * x * x;
         }
     }
 
     public float FirstDerivative(float distance)
     {
-        if(distance >= h)
+        if (distance >= h)
         {
             return 0.0f;
         }
         else
         {
-            float x = 1.0f - distance * distance / h2;
-            return -945 / (32.0f * Mathf.PI * h5) * distance * x * x;
+            float x = 1.0f - distance  / h;
+            return -45.0f / (Mathf.PI * h4)  * x * x;
         }
     }
 
@@ -45,12 +46,12 @@ public struct SPHKernal
 
     public float SecondDerivative(float distance)
     {
-        if (distance * distance >= h2)
+        if (distance >= h)
             return 0.0f;
         else
         {
-            float x = distance * distance / h2;
-            return 945 / (32.0f * Mathf.PI * h5) * (1 - x) * (3 * x * x);
+            float x = 1.0f - distance / h;
+            return 90 / (Mathf.PI * h5) * x;
         }
     }
 

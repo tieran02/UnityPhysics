@@ -3,12 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+public delegate void NearbyPointCallback(int pointIndex, Vector3 point);
 public interface IPointHash
 {
-    public delegate void NearbyPointCallback(int pointIndex, Vector3 point);
-
-    public void Build(List<Vector3> points);
-    public void ForEachNearbyPoint(Vector3 origin, float radius, NearbyPointCallback callbackAction);
+    void Build(List<Vector3> points);
+    void ForEachNearbyPoint(Vector3 origin, float radius, NearbyPointCallback callbackAction);
 }
 
 public class PointHashSearcher : IPointHash
@@ -18,7 +17,7 @@ public class PointHashSearcher : IPointHash
     private readonly float gridSpacing = 1.0f;
     private readonly Vector3Int resolution = Vector3Int.one;
     private List<Vector3> points;
-    private Dictionary<int,List<int>> buckets;
+    private Dictionary<int, List<int>> buckets;
 
     public PointHashSearcher(Vector3Int resolution, float gridSpacing)
     {
@@ -47,16 +46,16 @@ public class PointHashSearcher : IPointHash
             this.points[i] = points[i];
             int key = getHashKeyFromPosition(points[i]);
 
-            if(!this.buckets.ContainsKey(key))
+            if (!this.buckets.ContainsKey(key))
                 this.buckets.Add(key, new List<int>());
 
             this.buckets[key].Add(i);
         }
     }
 
-    public void ForEachNearbyPoint(Vector3 origin, float radius, IPointHash.NearbyPointCallback callbackAction)
+    public void ForEachNearbyPoint(Vector3 origin, float radius, global::NearbyPointCallback callbackAction)
     {
-        if(this.buckets.Count == 0)
+        if (this.buckets.Count == 0)
         {
             return;
         }
@@ -80,7 +79,7 @@ public class PointHashSearcher : IPointHash
                 int pointIndex = bucket[j];
                 Vector3 point = points[pointIndex];
                 float radiusSquared = (point - origin).sqrMagnitude;
-                if(radiusSquared <= queryRadiusSquared)
+                if (radiusSquared <= queryRadiusSquared)
                 {
                     callbackAction(pointIndex, point);
                 }
@@ -145,7 +144,9 @@ public class PointHashSearcher : IPointHash
     private int getHashKeyFromPosition(Vector3 position)
     {
         Vector3Int bucketIndex = getBucketIndex(position);
-        return getHashKeyFromBucketIndex(bucketIndex);
+
+        return (bucketIndex.z * bucketIndex.y) + bucketIndex.x;
+        //return getHashKeyFromBucketIndex(bucketIndex);
     }
 
     private int getHashKeyFromBucketIndex(Vector3Int bucketIndex)
