@@ -51,7 +51,7 @@ public struct SPHSpikeyKernal
         else
         {
             float x = 1.0f - distance / h;
-            return 90 / (Mathf.PI * h5) * x;
+            return 90.0f / (Mathf.PI * h5) * x;
         }
     }
 

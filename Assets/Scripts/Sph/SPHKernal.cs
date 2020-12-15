@@ -34,7 +34,7 @@ public struct SPHKernal
         else
         {
             float x = 1.0f - distance * distance / h2;
-            return -945 / (32.0f * Mathf.PI * h5) * distance * x * x;
+            return -945.0f / (32.0f * Mathf.PI * h5) * distance * x * x;
         }
     }
 
@@ -50,7 +50,7 @@ public struct SPHKernal
         else
         {
             float x = distance * distance / h2;
-            return 945 / (32.0f * Mathf.PI * h5) * (1 - x) * (3 * x * x);
+            return 945.0f / (32.0f * Mathf.PI * h5) * (1 - x) * (5 * x - 1);
         }
     }
 

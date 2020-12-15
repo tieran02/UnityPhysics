@@ -21,7 +21,7 @@ public class SPHSolver : MonoBehaviour
         solver.SetColliders(planeColliders);
 
         GameObject sphereGameobject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphereGameobject.transform.localScale = Vector3.one * 0.5f;
+        sphereGameobject.transform.localScale = Vector3.one * solver.ParticleData.Radius;
 
         for (int i = 0; i < NumberOfParticles; i++)
         {
@@ -41,4 +41,13 @@ public class SPHSolver : MonoBehaviour
         }
     }
 
+    private void OnDrawGizmos()
+    {
+        float kernalRadius = solver.ParticleData.KernalRadius;
+        for (int i = 0; i < particles.Count; i++)
+        {
+            Vector3 pos = solver.ParticleData.particleSet.Positions[i];
+            Gizmos.DrawWireSphere(pos, kernalRadius);
+        }
+    }
 }

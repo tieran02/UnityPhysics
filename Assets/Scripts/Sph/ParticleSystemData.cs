@@ -11,31 +11,38 @@ public struct ParticleSet
     public List<Vector3> Velocities;
     public List<Vector3> Forces;
     public List<float> Densities;
+    public List<float> Pressures;
 }
 
 public class ParticleSystemData
 {
     public ParticleSet particleSet;
 
-    private float radius = 1e-3f;
-    private float mass = 1e-3f;
+    private float radius = 0.004f;
+    private float mass = 0.004f;
 
     //Target spacing of this particle system in meters.
-    float targetSpacing = 0.1f;
+    //float targetSpacing = 1.0f;
+    float targetSpacing = 0.02f;
 
     //Relative radius of SPH kernel.
     //SPH kernel radius divided by target spacing.
     float kernelRadiusOverTargetSpacing = 1.8f;
+    //float kernelRadiusOverTargetSpacing = 2.8f;
+
 
     float kernalRadius;
 
     private IPointHash neighborSearcher;
     private List<List<int>> neighborLists;
+    private const float waterDensitiy = 1000.0f;
 
     public int Size => particleSet.Positions.Count;
     public float Mass => mass;
     public float Radius => radius;
     public float KernalRadius => kernalRadius;
+    public float TargetDensitiy => waterDensitiy;
+    public List<List<int>> Neighbors => neighborLists;
 
     public ParticleSystemData(int particleCount)
     {
@@ -52,7 +59,8 @@ public class ParticleSystemData
             Positions = new List<Vector3>(Enumerable.Repeat(Vector3.zero,numberOfParticles)),
             Velocities = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles)),
             Forces = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles)),
-            Densities = new List<float>(Enumerable.Repeat(0.0f, numberOfParticles))
+            Densities = new List<float>(Enumerable.Repeat(0.0f, numberOfParticles)),
+            Pressures = new List<float>(Enumerable.Repeat(0.0f, numberOfParticles))
         };
     }
 

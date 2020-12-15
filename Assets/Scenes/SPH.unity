@@ -210,7 +210,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 162486391}
   m_LocalRotation: {x: 0.70710677, y: 0, z: 0, w: 0.70710677}
-  m_LocalPosition: {x: 0, y: -4.76, z: 11.6}
+  m_LocalPosition: {x: 0, y: 0, z: 11.6}
   m_LocalScale: {x: 1370.0745, y: 38.124924, z: 38.124924}
   m_Children: []
   m_Father: {fileID: 0}
@@ -557,7 +557,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 575de44abece9c049a0d9c6837d74f63, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  NumberOfParticles: 250
+  NumberOfParticles: 256
   planeColliders:
   - {fileID: 162486396}
   SpawnPos: {fileID: 0}

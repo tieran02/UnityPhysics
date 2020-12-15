@@ -126,7 +126,7 @@ public class PointHashSearcher : IPointHash
 
         for (int i = 0; i < 8; i++)
         {
-            nearbyKeys[i] = getHashKeyFromBucketIndex(nearbyBucketIndices[i]);
+            nearbyKeys[i] = nearbyBucketIndices[i].GetHashCode();
         }
 
     }
@@ -145,7 +145,7 @@ public class PointHashSearcher : IPointHash
     {
         Vector3Int bucketIndex = getBucketIndex(position);
 
-        return (bucketIndex.z * bucketIndex.y) + bucketIndex.x;
+        return bucketIndex.GetHashCode();
         //return getHashKeyFromBucketIndex(bucketIndex);
     }
 

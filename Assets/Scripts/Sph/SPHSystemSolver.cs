@@ -10,6 +10,10 @@ public class SPHSystemSolver : Solver
 
     private const float dragCoefficient = 1e-4f;
     private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
+    private const float speedOfSound = 100.0f;
+    // Exponent component of equation-of-state (or Tait's equation).
+    private const float eosExponent = 7.0f;
+    private const float viscosityCoefficient = 0.0f;
 
     //current state of positions and velocites
     private List<Vector3> newPositions;
@@ -25,10 +29,10 @@ public class SPHSystemSolver : Solver
         newPositions = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles));
         newVelocities = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles));
 
-        //for (int i = 0; i < numberOfParticles; i++)
-        //{
-        //    particleData.particleSet.Positions[i] = new Vector3(i*0.25f, 0, 0);
-        //}
+        for (int i = 0; i < numberOfParticles; i++)
+        {
+            particleData.particleSet.Positions[i] = new Vector3(0.0f, i * 0.002f, 0.0f);
+        }
     }
 
     protected override void NextStep()
@@ -51,6 +55,9 @@ public class SPHSystemSolver : Solver
 
     void accumulateForces(float deltaTime)
     {
+        accumlateNonPressureForces(deltaTime);
+        accumlatePressureForces(deltaTime);
+
         accumlateExternalForces(deltaTime);
     }
 
@@ -73,7 +80,11 @@ public class SPHSystemSolver : Solver
                     Vector3 approachVelocity = velocity;
                     Vector3 V1norm = approachVelocity.normalized;
                     Vector3 Vb = 2 * collisionData.CollisionNormal * Vector3.Dot(collisionData.CollisionNormal, -V1norm) + V1norm;
-                    Vector3 newVelocity = Vb * approachVelocity.magnitude;
+
+                    Vector3 relativeVelN = Vb * approachVelocity.magnitude;
+                    Vector3 relativeVelT = approachVelocity - relativeVelN;
+
+                    Vector3 newVelocity = relativeVelN + relativeVelT;
 
                     Vector3 J = (newVelocity * (RestitutionCoefficient + 1)) / ((1 / mass));
 
@@ -88,31 +99,44 @@ public class SPHSystemSolver : Solver
 
     private void beginTimeStep()
     {
+        Parallel.For(0, particleData.Size, (index, loopState) =>
+        {
+            particleData.particleSet.Forces[index] = Vector3.zero;
+        });
+
+
         particleData.BuildNeighborSearcher(particleData.KernalRadius);
         particleData.BuildNeighborLists(particleData.KernalRadius);
         particleData.UpdateDensities();
 
         //reset forces, pos, velocities and densities in parallel
-        Parallel.For(0, particleData.Size, (index, loopState) =>
-        {
-            particleData.particleSet.Forces[index] = Vector3.zero;
-            newPositions[index] = Vector3.zero;
-            newVelocities[index] = Vector3.zero;
-            particleData.particleSet.Densities[index] = 0.0f;
-        });
+
 
         //TODO: update collider position
     }
 
     private void endTimeStep()
     {
-        //update data
-
-        Parallel.For(0,particleData.Size, index => 
+        Parallel.For(0, particleData.Size, index =>
         {
             particleData.particleSet.Positions[index] = newPositions[index];
             particleData.particleSet.Velocities[index] = newVelocities[index];
         });
+
+        //update data
+        computePseudoViscosity();
+
+        var particles = particleData.particleSet;
+        var x = particles.Positions;
+        var d = particles.Densities;
+        var p = particles.Pressures;
+        var f = particles.Forces;
+
+        float maxDensity = 0.0f;
+        for (int i = 0; i < particleData.Size; ++i)
+        {
+            maxDensity = Mathf.Max(maxDensity, d[i]);
+        }
     }
 
     private void timeIntegration(float deltaTime)
@@ -152,5 +176,110 @@ public class SPHSystemSolver : Solver
 
             forces[index] += force;
         });
+    }
+
+    private void accumlateNonPressureForces(float deltaTime)
+    {
+        //accumlateExternalForces(deltaTime);
+        accumulateViscosityForce();
+    }
+
+    private void accumlatePressureForces(float deltaTime)
+    {
+        var particles = particleData.particleSet;
+        var x = particles.Positions;
+        var d = particles.Densities;
+        var p = particles.Pressures;
+        var f = particles.Forces;
+
+        computePressure();
+        accumlatePressureForce(x, d, p, f);
+    }
+
+    private void accumlatePressureForce(List<Vector3> positions, List<float> densities, List<float> pressures, List<Vector3> pressureForces)
+    {
+        var particles = particleData;
+        int numberOfParticles = particles.Size;
+
+        float massSquared = particles.Mass * particles.Mass;
+        SPHSpikeyKernal kernal = new SPHSpikeyKernal(particles.KernalRadius);
+
+        Parallel.For(0, numberOfParticles, (index) =>
+        {
+        var neigbors = particles.Neighbors[index];
+        foreach (var neighbor in neigbors)
+        {
+            float distance = Vector3.Distance(positions[index], positions[neighbor]);
+
+            if (distance > 0.0f)
+            {
+                Vector3 direction = (positions[neighbor] - positions[index]) / distance;
+                    Vector3 force = massSquared
+                        * (pressures[index] / (densities[index] * densities[index])
+                        + pressures[neighbor] / (densities[neighbor] * densities[neighbor]))
+                        * kernal.Gradiant(distance, direction);
+                pressureForces[index] -= force;
+                }
+            }
+        });
+    }
+
+    private void computePressure()
+    {
+        var particles = particleData.particleSet;
+        var numberOfParticles = particleData.Size;
+        var d = particles.Densities;
+        var p = particles.Pressures;
+
+        float targetDensity = particleData.TargetDensitiy;
+        float eosScale = targetDensity * (speedOfSound * speedOfSound);
+
+        Parallel.For(0, numberOfParticles, (index) =>
+        {
+            //p[index] = computePressure(d[index], targetDensity, eosScale, eosExponent, 0.0f);
+            p[index] = 50.0f * (d[index] - 82.0f);
+        });
+    }
+
+    private void accumulateViscosityForce()
+    {
+        var particles = particleData;
+        int numberOfParticles = particleData.Size;
+        var x = particles.particleSet.Positions;
+        var d = particles.particleSet.Densities;
+        var v = particles.particleSet.Velocities;
+        var f = particles.particleSet.Forces;
+
+        float massSquared = particles.Mass * particles.Mass;
+        SPHSpikeyKernal kernal = new SPHSpikeyKernal(particles.KernalRadius);
+
+        Parallel.For(0, numberOfParticles, (index) =>
+        {
+            var neighbors = particles.Neighbors[index];
+            foreach (var neighbor in neighbors)
+            {
+                float distance = Vector3.Distance(x[index], x[neighbor]);
+
+                f[index] += viscosityCoefficient * massSquared
+                    * (v[neighbor] - v[index]) / d[neighbor]
+                    * kernal.SecondDerivative(distance);
+            }
+        });
+    }
+
+    private void computePseudoViscosity()
+    {
+
+    }
+
+    float computePressure(float density, float targetDensity, float eosScale, float eosExponent, float negativePressureScale)
+    {
+        float p = eosScale / eosExponent
+            * (Mathf.Pow((density / targetDensity), eosExponent) - 1.0f);
+
+        //negative pressue scaling
+        if (p < 0)
+            p *= negativePressureScale;
+        return p;
     }
 }
