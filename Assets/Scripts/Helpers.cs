@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
@@ -9,7 +10,7 @@ public static class Helpers
         return new Quaternion(input.x * scalar, input.y * scalar, input.z * scalar, input.w * scalar);
     }
 
-    public static void Resize<T>(this List<T> list, int size, T element = default(T))
+    public static void Resize<T>(this List<T> list, int size, T element = default(T), bool clone = false)
     {
         int count = list.Count;
 
@@ -21,8 +22,10 @@ public static class Helpers
         {
             if (size > list.Capacity)   // Optimization
                 list.Capacity = size;
-
-            list.AddRange(Enumerable.Repeat(element, size - count));
+            if(!clone)
+                list.AddRange(Enumerable.Repeat(element, size - count));
+            else
+                list.AddRange(Enumerable.Range(0, size - count).Select(i => Activator.CreateInstance<T>()).ToArray());
         }
     }
 

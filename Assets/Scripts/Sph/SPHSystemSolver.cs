@@ -10,10 +10,11 @@ public class SPHSystemSolver : Solver
 
     private const float dragCoefficient = 1e-4f;
     private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
-    private const float speedOfSound = 100.0f;
+    //private const float speedOfSound = 100.0f;
+    private const float speedOfSound = 5.0f;
     // Exponent component of equation-of-state (or Tait's equation).
     private const float eosExponent = 7.0f;
-    private const float viscosityCoefficient = 0.0f;
+    private const float viscosityCoefficient = 0.1f;
 
     //current state of positions and velocites
     private List<Vector3> newPositions;
@@ -23,15 +24,21 @@ public class SPHSystemSolver : Solver
 
     public ParticleSystemData ParticleData => particleData;
 
-    public SPHSystemSolver(int numberOfParticles) : base(1.0f / 60.0f)
+    public SPHSystemSolver(int numberOfParticles, float targetSpacing) : base(1.0f / 60.0f)
     {
-        particleData = new ParticleSystemData(numberOfParticles);
+        particleData = new ParticleSystemData(numberOfParticles, targetSpacing);
+
         newPositions = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles));
         newVelocities = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles));
 
+        const int perRow = 10;
+        float spacing = targetSpacing * 2.0f;
         for (int i = 0; i < numberOfParticles; i++)
         {
-            particleData.particleSet.Positions[i] = new Vector3(0.0f, i * 0.002f, 0.0f);
+            float x = ((i % perRow) * spacing) + Random.Range(-spacing, spacing);
+            float y = (2 * spacing) + (float)(((i / perRow) / perRow) * spacing) * 1.1f;
+            float z = (((i /perRow) % perRow) * spacing) + Random.Range(-spacing, spacing);
+            particleData.particleSet.Positions[i] = new Vector3(x,y,z);
         }
     }
 
@@ -180,7 +187,7 @@ public class SPHSystemSolver : Solver
 
     private void accumlateNonPressureForces(float deltaTime)
     {
-        //accumlateExternalForces(deltaTime);
+        accumlateExternalForces(deltaTime);
         accumulateViscosityForce();
     }
 
@@ -236,8 +243,8 @@ public class SPHSystemSolver : Solver
 
         Parallel.For(0, numberOfParticles, (index) =>
         {
-            //p[index] = computePressure(d[index], targetDensity, eosScale, eosExponent, 0.0f);
-            p[index] = 50.0f * (d[index] - 82.0f);
+            p[index] = computePressure(d[index], targetDensity, eosScale, eosExponent, 0.0f);
+            //p[index] = 50.0f * (d[index] - 82.0f);
         });
     }
 

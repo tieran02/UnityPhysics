@@ -6,6 +6,7 @@ using UnityEngine;
 public class SPHSolver : MonoBehaviour
 {
     public int NumberOfParticles = 1000;
+    public float TargetSpacing = 0.02f;
     public PlaneCollider[] planeColliders;
     SPHSystemSolver solver;
 
@@ -16,12 +17,12 @@ public class SPHSolver : MonoBehaviour
 
     void Awake()
     {
-        solver = new SPHSystemSolver(NumberOfParticles);
+        solver = new SPHSystemSolver(NumberOfParticles, TargetSpacing);
         particles = new List<GameObject>(NumberOfParticles);
         solver.SetColliders(planeColliders);
 
         GameObject sphereGameobject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-        sphereGameobject.transform.localScale = Vector3.one * solver.ParticleData.Radius;
+        sphereGameobject.transform.localScale = Vector3.one * TargetSpacing;
 
         for (int i = 0; i < NumberOfParticles; i++)
         {

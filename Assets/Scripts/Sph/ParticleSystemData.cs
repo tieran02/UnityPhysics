@@ -44,12 +44,12 @@ public class ParticleSystemData
     public float TargetDensitiy => waterDensitiy;
     public List<List<int>> Neighbors => neighborLists;
 
-    public ParticleSystemData(int particleCount)
+    public ParticleSystemData(int particleCount, float targetSpacing)
     {
         resize(particleCount);
         neighborLists = new List<List<int>>();
-
-        kernalRadius = kernelRadiusOverTargetSpacing * targetSpacing;
+        this.targetSpacing = targetSpacing;
+        kernalRadius = kernelRadiusOverTargetSpacing * this.targetSpacing;
     }
 
     public void resize(int numberOfParticles)
@@ -72,11 +72,10 @@ public class ParticleSystemData
 
     public void BuildNeighborLists(float maxSearchRadius)
     {
-        neighborLists.Resize(particleSet.Positions.Count, new List<int>());
+        neighborLists.Resize(particleSet.Positions.Count, new List<int>(), true);
 
         for (int i = 0; i < particleSet.Positions.Count; i++)
         {
-
             Vector3 origin = particleSet.Positions[i];
             neighborLists[i].Clear();
 
@@ -113,7 +112,7 @@ public class ParticleSystemData
         neighborSearcher.ForEachNearbyPoint(origin, kernalRadius, (index, neighborPosition) =>
         {
             float dist = Vector3.Distance(origin, neighborPosition);
-            float weight = mass * kernal.Value(dist);
+            float weight = kernal.Value(dist);
             sum += weight;
         });
 
