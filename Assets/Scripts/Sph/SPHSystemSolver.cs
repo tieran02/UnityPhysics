@@ -15,7 +15,7 @@ public class SPHSystemSolver : Solver
     // Exponent component of equation-of-state (or Tait's equation).
     private const float eosExponent = 7.0f;
     private const float viscosityCoefficient = 0.0f;
-    private const float pseudoViscosityCoefficient = 1.0f;
+    private const float pseudoViscosityCoefficient = 0.5f;
 
     //current state of positions and velocites
     private List<Vector3> newPositions;
@@ -32,7 +32,7 @@ public class SPHSystemSolver : Solver
         newPositions = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles));
         newVelocities = new List<Vector3>(Enumerable.Repeat(Vector3.zero, numberOfParticles));
 
-        const int perRow = 10;
+        const int perRow = 64;
         float spacing = targetSpacing * 2.0f;
         for (int i = 0; i < numberOfParticles; i++)
         {
@@ -70,8 +70,8 @@ public class SPHSystemSolver : Solver
     void resolveCollisions()
     {
         float mass = particleData.Mass;
-        const float RestitutionCoefficient = 0.01f;
-        const float frictionCoeffient = 0.8f;
+        const float RestitutionCoefficient = 0.06f;
+        const float frictionCoeffient = 0.0f;
 
         Parallel.For(0, particleData.Size, index =>
         {
