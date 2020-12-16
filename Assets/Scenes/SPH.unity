@@ -561,10 +561,6 @@ MonoBehaviour:
   TargetSpacing: 0.02
   planeColliders:
   - {fileID: 162486396}
-  - {fileID: 1892805396}
-  - {fileID: 1933930714}
-  - {fileID: 2092420468}
-  - {fileID: 593912449}
   SpawnPos: {fileID: 0}
 --- !u!1 &593912447
 GameObject:
@@ -585,7 +581,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &593912448
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -673,7 +669,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 593912447}
   m_LocalRotation: {x: -2.7749648e-13, y: -1, z: -0.00000037252894, w: -0.0000007599591}
-  m_LocalPosition: {x: 1, y: 0, z: -1}
+  m_LocalPosition: {x: 1, y: 0, z: -0.092}
   m_LocalScale: {x: 1370.0745, y: 272.74, z: 38.124924}
   m_Children: []
   m_Father: {fileID: 0}
@@ -692,6 +688,7 @@ GameObject:
   - component: {fileID: 1687258582}
   - component: {fileID: 1687258586}
   - component: {fileID: 1687258583}
+  - component: {fileID: 1687258587}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -797,8 +794,8 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1687258581}
-  m_LocalRotation: {x: -0.1197567, y: 0.87489426, z: -0.27859354, w: -0.3776296}
-  m_LocalPosition: {x: 9.487344, y: 8.616339, z: 11.481854}
+  m_LocalRotation: {x: -0.047903683, y: -0.0034476644, z: -0.0003606309, w: -0.99884593}
+  m_LocalPosition: {x: -0.0044695735, y: 0.36388084, z: -1.7949345}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
@@ -864,6 +861,37 @@ MonoBehaviour:
   m_BeforeTransparentBundles: []
   m_BeforeStackBundles: []
   m_AfterStackBundles: []
+--- !u!114 &1687258587
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1687258581}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
 --- !u!1 &1892805394
 GameObject:
   m_ObjectHideFlags: 0
@@ -883,7 +911,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1892805395
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -971,7 +999,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1892805394}
   m_LocalRotation: {x: 0.00000037252897, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 1}
+  m_LocalPosition: {x: 0, y: -0, z: 0.448}
   m_LocalScale: {x: 1370.0745, y: 272.74, z: 38.124924}
   m_Children: []
   m_Father: {fileID: 0}
@@ -996,7 +1024,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &1933930713
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1084,7 +1112,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1933930712}
   m_LocalRotation: {x: 0.00000026341777, y: -0.70710677, z: -0.00000026341775, w: 0.7071068}
-  m_LocalPosition: {x: -1, y: -0, z: 11.6}
+  m_LocalPosition: {x: -0.092, y: -0, z: -0.092}
   m_LocalScale: {x: 1370.0745, y: 272.74, z: 18.570269}
   m_Children: []
   m_Father: {fileID: 0}
@@ -1109,7 +1137,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!64 &2092420467
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -1197,7 +1225,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2092420466}
   m_LocalRotation: {x: -0.00000026341792, y: -0.7071063, z: -0.00000026341755, w: -0.7071073}
-  m_LocalPosition: {x: 1, y: -0, z: 1}
+  m_LocalPosition: {x: 0.435, y: -0, z: 0.092}
   m_LocalScale: {x: 1370.0745, y: 272.74, z: 18.570269}
   m_Children: []
   m_Father: {fileID: 0}

@@ -14,7 +14,8 @@ public class SPHSystemSolver : Solver
     private const float speedOfSound = 5.0f;
     // Exponent component of equation-of-state (or Tait's equation).
     private const float eosExponent = 7.0f;
-    private const float viscosityCoefficient = 0.1f;
+    private const float viscosityCoefficient = 0.0f;
+    private const float pseudoViscosityCoefficient = 0.2f;
 
     //current state of positions and velocites
     private List<Vector3> newPositions;
@@ -36,7 +37,7 @@ public class SPHSystemSolver : Solver
         for (int i = 0; i < numberOfParticles; i++)
         {
             float x = ((i % perRow) * spacing) + Random.Range(-spacing, spacing);
-            float y = (2 * spacing) + (float)(((i / perRow) / perRow) * spacing) * 1.1f;
+            float y = (20 * spacing) + (float)(((i / perRow) / perRow) * spacing) * 1.1f;
             float z = (((i /perRow) % perRow) * spacing) + Random.Range(-spacing, spacing);
             particleData.particleSet.Positions[i] = new Vector3(x,y,z);
         }
@@ -64,41 +65,72 @@ public class SPHSystemSolver : Solver
     {
         accumlateNonPressureForces(deltaTime);
         accumlatePressureForces(deltaTime);
-
-        accumlateExternalForces(deltaTime);
     }
 
     void resolveCollisions()
     {
         float mass = particleData.Mass;
-        const float RestitutionCoefficient = 0.6f;
+        const float RestitutionCoefficient = 0.001f;
+        const float frictionCoeffient = 0.6f;
 
         Parallel.For(0, particleData.Size, index =>
         {
-            Vector3 position = newPositions[index];
-            Vector3 velocity = newVelocities[index];
+            Vector3 newPosition = newPositions[index];
+            Vector3 newVelocity = newVelocities[index];
 
             foreach (var collider in colliders)
             {
                 CollisionData collisionData;
-                if(collider.CollisionOccured(position, velocity, deltaTime, out collisionData))
+                if(collider.CollisionOccured(newPosition, newVelocity, deltaTime, out collisionData))
                 {
-                    // Relative velocity
-                    Vector3 approachVelocity = velocity;
+                    //Relative velocity
+                    Vector3 approachVelocity = newVelocity;
                     Vector3 V1norm = approachVelocity.normalized;
                     Vector3 Vb = 2 * collisionData.CollisionNormal * Vector3.Dot(collisionData.CollisionNormal, -V1norm) + V1norm;
 
                     Vector3 relativeVelN = Vb * approachVelocity.magnitude;
                     Vector3 relativeVelT = approachVelocity - relativeVelN;
 
-                    Vector3 newVelocity = relativeVelN + relativeVelT;
+                    Vector3 actualVelocity = relativeVelN + relativeVelT;
 
-                    Vector3 J = (newVelocity * (RestitutionCoefficient + 1)) / ((1 / mass));
+                    Vector3 J = (actualVelocity * (RestitutionCoefficient + 1)) / ((1 / mass));
 
-                    Vector3 V1 = (J / mass) - newVelocity;
+                    Vector3 V1 = (J / mass) - actualVelocity;
 
                     newVelocities[index] = V1 * mass;
                     newPositions[index] += V1norm * collisionData.VC;
+
+                    //Vector3 targetNormal = collisionData.CollisionNormal;
+                    ////Vector3 targetPoint = newPosition + newVelocity.normalized * collisionData.VC;
+                    ////here we can have the colliders velocity, for now all colliders are static, thus have no velocity
+                    //Vector3 colliderVelocityAtTargetPoint = Vector3.zero;
+
+                    //Vector3 relativeVelocity = newVelocity - colliderVelocityAtTargetPoint;
+                    //float normalDotRelativeVelocity = Vector3.Dot(targetNormal, relativeVelocity);
+                    //Vector3 relativeVelocityNormal = normalDotRelativeVelocity * targetNormal;
+                    //Vector3 relativeVelocityT = relativeVelocity - relativeVelocityNormal;
+
+                    //// Check if the velocity is facing opposite direction of the surface
+                    //// normal
+                    //if (normalDotRelativeVelocity < 0.0)
+                    //{
+                    //    //Apply restitution coefficient to the surface normal component of the velocity
+                    //    Vector3 deltaRelativeVelocityNormal =  (-RestitutionCoefficient - 1.0f) * relativeVelocityNormal;
+                    //    relativeVelocityNormal *= -RestitutionCoefficient;
+
+                    //    // Apply friction to the tangential component of the velocity
+                    //    // http://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
+                    //    if (relativeVelocityT.sqrMagnitude > 0.0f)
+                    //    {
+                    //        float frictionScale = Mathf.Max(1.0f - frictionCoeffient * 
+                    //            deltaRelativeVelocityNormal.magnitude / relativeVelocityT.magnitude,0.0f);
+                    //        relativeVelocityT *= frictionScale;
+                    //    }
+
+                    //    // Reassemble the components
+                    //    newVelocities[index] = relativeVelocityNormal + relativeVelocityT + colliderVelocityAtTargetPoint;
+                    //}
+                    //newPositions[index] += relativeVelocity.normalized * collisionData.VC;
                 }
             }
         });
@@ -276,7 +308,49 @@ public class SPHSystemSolver : Solver
 
     private void computePseudoViscosity()
     {
+        var particles = particleData;
+        int numberOfParticles = particleData.Size;
+        var x = particles.particleSet.Positions;
+        var d = particles.particleSet.Densities;
+        var v = particles.particleSet.Velocities;
 
+        float mass = particles.Mass;
+        SPHSpikeyKernal kernel = new SPHSpikeyKernal(particles.KernalRadius);
+
+        Vector3[] smoothedVelocities = new Vector3[numberOfParticles];
+
+        Parallel.For(0, numberOfParticles, (index) =>
+        {
+            float weightSum = 0.0f;
+            Vector3 smoothedVelocity = Vector3.zero;
+
+            var neighbors = particles.Neighbors[index];
+            foreach (var neighbor in neighbors)
+            {
+                float distance = Vector3.Distance(x[index], x[neighbor]);
+                float wj = mass / d[neighbor] * kernel.Value(distance);
+                weightSum += wj;
+                smoothedVelocity += wj * v[neighbor];
+            }
+
+            float wi = mass / d[index];
+            weightSum += wi;
+            smoothedVelocity += wi * v[index];
+
+            if (weightSum > 0.0)
+            {
+                smoothedVelocity /= weightSum;
+            }
+
+            smoothedVelocities[index] = smoothedVelocity;
+        });
+
+        float factor = deltaTime * pseudoViscosityCoefficient;
+        factor = Mathf.Clamp(factor, 0.0f, 1.0f);
+        Parallel.For(0, numberOfParticles, (index) =>
+        {
+            v[index] = Vector3.Lerp(v[index], smoothedVelocities[index], factor);
+        });
     }
 
     float computePressure(float density, float targetDensity, float eosScale, float eosExponent, float negativePressureScale)
