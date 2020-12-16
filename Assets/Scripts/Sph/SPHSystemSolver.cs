@@ -207,7 +207,7 @@ public class SPHSystemSolver : Solver
 
         Parallel.For(0, particleData.Size, index =>
         {
-            Vector3 force = mass * GRAVITY_FORCE;
+            Vector3 force = mass * GRAVITY_FORCE * deltaTime;
 
             //TODO here we can add other forces such as wind and drag
             Vector3 relativeVel = velocities[index];
