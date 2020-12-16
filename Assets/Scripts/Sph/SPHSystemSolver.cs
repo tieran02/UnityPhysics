@@ -8,7 +8,7 @@ public class SPHSystemSolver : Solver
 {
     private readonly ParticleSystemData particleData;
 
-    private const float dragCoefficient = 1e-4f;
+    private const float dragCoefficient = 2e-4f;
     private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
     //private const float speedOfSound = 100.0f;
     private const float speedOfSound = 5.0f;
@@ -71,7 +71,7 @@ public class SPHSystemSolver : Solver
     {
         float mass = particleData.Mass;
         const float RestitutionCoefficient = 0.01f;
-        const float frictionCoeffient = 0.2f;
+        const float frictionCoeffient = 0.8f;
 
         Parallel.For(0, particleData.Size, index =>
         {
