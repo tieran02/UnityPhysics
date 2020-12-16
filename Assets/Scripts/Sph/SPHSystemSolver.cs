@@ -15,7 +15,7 @@ public class SPHSystemSolver : Solver
     // Exponent component of equation-of-state (or Tait's equation).
     private const float eosExponent = 7.0f;
     private const float viscosityCoefficient = 0.0f;
-    private const float pseudoViscosityCoefficient = 0.2f;
+    private const float pseudoViscosityCoefficient = 1.0f;
 
     //current state of positions and velocites
     private List<Vector3> newPositions;
@@ -70,8 +70,8 @@ public class SPHSystemSolver : Solver
     void resolveCollisions()
     {
         float mass = particleData.Mass;
-        const float RestitutionCoefficient = 0.001f;
-        const float frictionCoeffient = 0.6f;
+        const float RestitutionCoefficient = 0.01f;
+        const float frictionCoeffient = 0.2f;
 
         Parallel.For(0, particleData.Size, index =>
         {
@@ -83,54 +83,56 @@ public class SPHSystemSolver : Solver
                 CollisionData collisionData;
                 if(collider.CollisionOccured(newPosition, newVelocity, deltaTime, out collisionData))
                 {
-                    //Relative velocity
-                    Vector3 approachVelocity = newVelocity;
-                    Vector3 V1norm = approachVelocity.normalized;
-                    Vector3 Vb = 2 * collisionData.CollisionNormal * Vector3.Dot(collisionData.CollisionNormal, -V1norm) + V1norm;
+                    ////Relative velocity
+                    //Vector3 approachVelocity = newVelocity;
+                    //Vector3 V1norm = approachVelocity.normalized;
+                    //Vector3 Vb = 2 * collisionData.CollisionNormal * Vector3.Dot(collisionData.CollisionNormal, -V1norm) + V1norm;
 
-                    Vector3 relativeVelN = Vb * approachVelocity.magnitude;
-                    Vector3 relativeVelT = approachVelocity - relativeVelN;
+                    //Vector3 relativeVelN = Vb * approachVelocity.magnitude;
+                    //Vector3 relativeVelT = approachVelocity - relativeVelN;
 
-                    Vector3 actualVelocity = relativeVelN + relativeVelT;
+                    //Vector3 actualVelocity = relativeVelN + relativeVelT;
 
-                    Vector3 J = (actualVelocity * (RestitutionCoefficient + 1)) / ((1 / mass));
+                    //Vector3 J = (actualVelocity * (RestitutionCoefficient + 1)) / ((1 / mass));
 
-                    Vector3 V1 = (J / mass) - actualVelocity;
+                    //Vector3 V1 = (J / mass) - actualVelocity;
 
-                    newVelocities[index] = V1 * mass;
-                    newPositions[index] += V1norm * collisionData.VC;
+                    //newVelocities[index] = V1 * mass;
+                    //newPositions[index] += V1norm * collisionData.VC;
 
-                    //Vector3 targetNormal = collisionData.CollisionNormal;
-                    ////Vector3 targetPoint = newPosition + newVelocity.normalized * collisionData.VC;
-                    ////here we can have the colliders velocity, for now all colliders are static, thus have no velocity
-                    //Vector3 colliderVelocityAtTargetPoint = Vector3.zero;
+                    Vector3 targetNormal = collisionData.CollisionNormal;
+                    //Vector3 targetPoint = newPosition + newVelocity.normalized * collisionData.VC;
+                    //here we can have the colliders velocity, for now all colliders are static, thus have no velocity
+                    Vector3 colliderVelocityAtTargetPoint = Vector3.zero;
 
-                    //Vector3 relativeVelocity = newVelocity - colliderVelocityAtTargetPoint;
-                    //float normalDotRelativeVelocity = Vector3.Dot(targetNormal, relativeVelocity);
-                    //Vector3 relativeVelocityNormal = normalDotRelativeVelocity * targetNormal;
-                    //Vector3 relativeVelocityT = relativeVelocity - relativeVelocityNormal;
+                    Vector3 relativeVelocity = newVelocity - colliderVelocityAtTargetPoint;
+                    float normalDotRelativeVelocity = Vector3.Dot(targetNormal, relativeVelocity);
+                    Vector3 relativeVelocityNormal = normalDotRelativeVelocity * targetNormal;
+                    Vector3 relativeVelocityT = relativeVelocity - relativeVelocityNormal;
 
-                    //// Check if the velocity is facing opposite direction of the surface
-                    //// normal
-                    //if (normalDotRelativeVelocity < 0.0)
-                    //{
-                    //    //Apply restitution coefficient to the surface normal component of the velocity
-                    //    Vector3 deltaRelativeVelocityNormal =  (-RestitutionCoefficient - 1.0f) * relativeVelocityNormal;
-                    //    relativeVelocityNormal *= -RestitutionCoefficient;
+                    // Check if the velocity is facing opposite direction of the surface
+                    // normal
+                    if (normalDotRelativeVelocity < 0.0)
+                    {
+                        //Apply restitution coefficient to the surface normal component of the velocity
+                        Vector3 deltaRelativeVelocityNormal = (-RestitutionCoefficient - 1.0f) * relativeVelocityNormal;
+                        relativeVelocityNormal *= -RestitutionCoefficient;
 
-                    //    // Apply friction to the tangential component of the velocity
-                    //    // http://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
-                    //    if (relativeVelocityT.sqrMagnitude > 0.0f)
-                    //    {
-                    //        float frictionScale = Mathf.Max(1.0f - frictionCoeffient * 
-                    //            deltaRelativeVelocityNormal.magnitude / relativeVelocityT.magnitude,0.0f);
-                    //        relativeVelocityT *= frictionScale;
-                    //    }
+                        // Apply friction to the tangential component of the velocity
+                        // http://graphics.stanford.edu/papers/cloth-sig02/cloth.pdf
+                        if (relativeVelocityT.sqrMagnitude > 0.0f)
+                        {
+                            float frictionScale = Mathf.Max(1.0f - frictionCoeffient *
+                                deltaRelativeVelocityNormal.magnitude / relativeVelocityT.magnitude, 0.0f);
+                            relativeVelocityT *= frictionScale;
+                        }
 
-                    //    // Reassemble the components
-                    //    newVelocities[index] = relativeVelocityNormal + relativeVelocityT + colliderVelocityAtTargetPoint;
-                    //}
-                    //newPositions[index] += relativeVelocity.normalized * collisionData.VC;
+                        relativeVelocityT = Vector3.ProjectOnPlane(relativeVelocityT, targetNormal);
+
+                        // Reassemble the components
+                        newVelocities[index] = relativeVelocityNormal + relativeVelocityT + colliderVelocityAtTargetPoint;
+                    }
+                    newPositions[index] = collisionData.ContactPoint + (particleData.Radius * 0.05f * targetNormal);
                 }
             }
         });
