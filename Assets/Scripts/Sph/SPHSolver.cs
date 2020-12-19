@@ -9,6 +9,9 @@ public class SPHSolver : MonoBehaviour
     public float TargetSpacing = 0.02f;
     public PlaneCollider[] planeColliders;
     SPHSystemSolver solver;
+    public Material material;
+    public float MaxDensitity = 1000.0f;
+    List<Material> mats;
 
 
     public Transform SpawnPos;
@@ -20,13 +23,17 @@ public class SPHSolver : MonoBehaviour
         solver = new SPHSystemSolver(NumberOfParticles, TargetSpacing);
         particles = new List<GameObject>(NumberOfParticles);
         solver.SetColliders(planeColliders);
+        MaxDensitity = solver.ParticleData.TargetDensitiy;
 
         GameObject sphereGameobject = GameObject.CreatePrimitive(PrimitiveType.Sphere);
         sphereGameobject.transform.localScale = Vector3.one * TargetSpacing;
 
+        mats = new List<Material>();
         for (int i = 0; i < NumberOfParticles; i++)
         {
             particles.Add(Instantiate(sphereGameobject, Vector3.zero, Quaternion.identity));
+            mats.Add(Instantiate<Material>(material));
+            particles[i].GetComponent<MeshRenderer>().material = mats[i];
         }
         Destroy(sphereGameobject);
     }
@@ -39,6 +46,7 @@ public class SPHSolver : MonoBehaviour
         for (int i = 0; i < particles.Count; i++)
         {
             particles[i].transform.position = solver.ParticleData.particleSet.Positions[i];
+            mats[i].color = Color.Lerp(Color.white, Color.red, solver.ParticleData.particleSet.Densities[i] / MaxDensitity);
         }
     }
 

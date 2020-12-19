@@ -11,11 +11,11 @@ public class SPHSystemSolver : Solver
     private const float dragCoefficient = 2e-4f;
     private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
     //private const float speedOfSound = 100.0f;
-    private const float speedOfSound = 5.0f;
+    private const float speedOfSound = 500.0f;
     // Exponent component of equation-of-state (or Tait's equation).
     private const float eosExponent = 7.0f;
-    private const float viscosityCoefficient = 0.0f;
-    private const float pseudoViscosityCoefficient = 0.5f;
+    private const float viscosityCoefficient = 0.01f;
+    private const float pseudoViscosityCoefficient = 40.0f;
 
     //current state of positions and velocites
     private List<Vector3> newPositions;
@@ -71,7 +71,7 @@ public class SPHSystemSolver : Solver
     {
         float mass = particleData.Mass;
         const float RestitutionCoefficient = 0.06f;
-        const float frictionCoeffient = 0.0f;
+        const float frictionCoeffient = 0.0001f;
 
         Parallel.For(0, particleData.Size, index =>
         {
@@ -132,7 +132,8 @@ public class SPHSystemSolver : Solver
                         // Reassemble the components
                         newVelocities[index] = relativeVelocityNormal + relativeVelocityT + colliderVelocityAtTargetPoint;
                     }
-                    newPositions[index] = collisionData.ContactPoint + (particleData.Radius * 0.05f * targetNormal);
+                    newPositions[index] = collisionData.ContactPoint + (particleData.KernalRadius * targetNormal);
+                    //newPositions[index] += newVelocity.normalized * (collisionData.VC - particleData.KernalRadius);
                 }
             }
         });
@@ -247,19 +248,19 @@ public class SPHSystemSolver : Solver
 
         Parallel.For(0, numberOfParticles, (index) =>
         {
-        var neigbors = particles.Neighbors[index];
-        foreach (var neighbor in neigbors)
-        {
-            float distance = Vector3.Distance(positions[index], positions[neighbor]);
-
-            if (distance > 0.0f)
+            var neigbors = particles.Neighbors[index];
+            foreach (var neighbor in neigbors)
             {
-                Vector3 direction = (positions[neighbor] - positions[index]) / distance;
-                    Vector3 force = massSquared
-                        * (pressures[index] / (densities[index] * densities[index])
-                        + pressures[neighbor] / (densities[neighbor] * densities[neighbor]))
-                        * kernal.Gradiant(distance, direction);
-                pressureForces[index] -= force;
+                float distance = Vector3.Distance(positions[index], positions[neighbor]);
+
+                if (distance > 0.0f)
+                {
+                    Vector3 direction = (positions[neighbor] - positions[index]) / distance;
+                        Vector3 force = massSquared
+                            * (pressures[index] / (densities[index] * densities[index])
+                            + pressures[neighbor] / (densities[neighbor] * densities[neighbor]))
+                            * kernal.Gradiant(distance, direction);
+                    pressureForces[index] -= force;
                 }
             }
         });
@@ -359,6 +360,8 @@ public class SPHSystemSolver : Solver
     {
         float p = eosScale / eosExponent
             * (Mathf.Pow((density / targetDensity), eosExponent) - 1.0f);
+
+        //float p = 50.0f * (density - 82.0f);
 
         //negative pressue scaling
         if (p < 0)

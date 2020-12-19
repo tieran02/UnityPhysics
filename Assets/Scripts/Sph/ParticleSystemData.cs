@@ -19,7 +19,7 @@ public class ParticleSystemData
     public ParticleSet particleSet;
 
     private float radius = 0.004f;
-    private float mass = 0.004f;
+    private float mass = 0.001f;
 
     //Target spacing of this particle system in meters.
     //float targetSpacing = 1.0f;
@@ -107,7 +107,7 @@ public class ParticleSystemData
     public float SumOfKernelNearby(Vector3 origin)
     {
         float sum = 0.0f;
-        SPHKernal kernal = new SPHKernal(kernalRadius);
+        var kernal = new SPHKernal(kernalRadius);
 
         neighborSearcher.ForEachNearbyPoint(origin, kernalRadius, (index, neighborPosition) =>
         {
