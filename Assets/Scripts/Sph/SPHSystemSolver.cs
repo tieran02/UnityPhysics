@@ -10,12 +10,12 @@ public class SPHSystemSolver : Solver
 
     private const float dragCoefficient = 2e-4f;
     private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
-    //private const float speedOfSound = 100.0f;
-    private const float speedOfSound = 500.0f;
+    private const float speedOfSound = 50.0f;
+    //private const float speedOfSound = 500.0f;
     // Exponent component of equation-of-state (or Tait's equation).
     private const float eosExponent = 7.0f;
-    private const float viscosityCoefficient = 0.01f;
-    private const float pseudoViscosityCoefficient = 40.0f;
+    private const float viscosityCoefficient = 0.0074f;
+    private const float pseudoViscosityCoefficient = 20.0f;
 
     //current state of positions and velocites
     private List<Vector3> newPositions;
@@ -70,8 +70,8 @@ public class SPHSystemSolver : Solver
     void resolveCollisions()
     {
         float mass = particleData.Mass;
-        const float RestitutionCoefficient = 0.06f;
-        const float frictionCoeffient = 0.0001f;
+        const float RestitutionCoefficient = 0.1f;
+        const float frictionCoeffient = float.Epsilon;
 
         Parallel.For(0, particleData.Size, index =>
         {
@@ -132,7 +132,8 @@ public class SPHSystemSolver : Solver
                         // Reassemble the components
                         newVelocities[index] = relativeVelocityNormal + relativeVelocityT + colliderVelocityAtTargetPoint;
                     }
-                    newPositions[index] = collisionData.ContactPoint + (particleData.KernalRadius * targetNormal);
+
+                    newPositions[index] = collisionData.ContactPoint + (newVelocities[index] * deltaTime);
                     //newPositions[index] += newVelocity.normalized * (collisionData.VC - particleData.KernalRadius);
                 }
             }
@@ -361,7 +362,7 @@ public class SPHSystemSolver : Solver
         float p = eosScale / eosExponent
             * (Mathf.Pow((density / targetDensity), eosExponent) - 1.0f);
 
-        //float p = 50.0f * (density - 82.0f);
+        //float p = 10.0f * (density - targetDensity);
 
         //negative pressue scaling
         if (p < 0)

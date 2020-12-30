@@ -109,50 +109,58 @@ public class PlaneCollider : BaseCollider
         throw new System.NotImplementedException();
     }
 
+
     //TODO implement point collision
     public override bool CollisionOccured(Vector3 point, Vector3 velocity, float deltaTime, out CollisionData collisionData)
     {
         collisionData = new CollisionData();
 
         Vector3 N = plane.Normal();
-        Vector3 V = velocity;
+        Vector3 k = plane.A; // an arbitrary point on the plane
+        Vector3 P = point - k; //a vector from k to the start of the sphere
 
-        float angle = Vector3.Angle(N, -V);
-
-        if (angle < 90.0f)
+        float dist = Vector3.Dot(N, point - k);
+        if (dist > float.Epsilon)
         {
-            Vector3 k = plane.A; // an arbitrary point on the plane
-            Vector3 P = point - k; //a vector from k to the start of the sphere
+            return false;
+        }
 
-            float q1 = Vector3.Angle(P, N);
-            float q2 = (90.0f - q1) * Mathf.Deg2Rad;
+        //If the plane is finite, check if the colliers point is within the finite plane
+        if ((!IsInfinite && !IsPointOnFinitePlane(point, dist, N)) || dist > float.Epsilon)
+        {
+            return false;
+        }
 
-            float s = Vector3.Angle(V, -N) * Mathf.Deg2Rad;
+        float d = Vector3.Dot(N, P);
+        float e = Vector3.Dot(N, -velocity);
 
-            float distance = Mathf.Sin(q2) * P.magnitude;
-
-            //If the plane is finite, check if the colliers point is within the finite plane
-            if (!IsInfinite && !IsPointOnFinitePlane(point, distance, N))
-            {
-                return false;
-            }
-
-            float vcMagnitude = distance;
-
-
-            if (vcMagnitude <= (V.magnitude * deltaTime))
-            {
-                Vector3 pNorm = P.normalized;
-                collisionData.ResolutionPoint = point + (pNorm * vcMagnitude);
-                collisionData.CollisionNormal = N;
-                collisionData.ContactPoint = collisionData.ResolutionPoint;
-                collisionData.Angle = angle;
-                collisionData.VC = vcMagnitude;
-                return true;
-            };
+        if (e > float.Epsilon)
+        {
+            Vector3 intersectionPoint = point + velocity * d / e;
+            collisionData.CollisionNormal = N;
+            collisionData.ContactPoint = intersectionPoint;
+            collisionData.ResolutionPoint = intersectionPoint;
+            collisionData.VC = d / e;
+            return true;
         }
 
         return false;
+
+        ////convert point and velocity to ray
+        //Vector3 ray = velocity;
+
+        //if (Vector3.Dot(N, ray) == 0)
+        //{
+        //    return false; // No intersection, the line is parallel to the plane
+        //}
+
+        //// calculate plane
+        //float d = Vector3.Dot(N, k);
+        //float x = (d - Vector3.Dot(N, point)) / Vector3.Dot(N, ray);
+
+        //Vector3 contactPoint = point + ray.normalized * x;
+
+
     }
 
     private bool IsPointOnFinitePlane(Vector3 point, float distance, Vector3 normal)
