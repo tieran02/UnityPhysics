@@ -10,7 +10,7 @@ public class SPHSystemSolver : Solver
 
     private const float dragCoefficient = 2e-4f;
     private readonly Vector3 GRAVITY_FORCE = new Vector3(0.0f, -9.8f, 0.0f);
-    private const float speedOfSound = 50.0f;
+    private const float speedOfSound = 1000.0f;
     //private const float speedOfSound = 500.0f;
     // Exponent component of equation-of-state (or Tait's equation).
     private const float eosExponent = 7.0f;
