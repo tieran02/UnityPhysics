@@ -139,4 +139,10 @@ public class SphereCollider : BaseCollider
     {
         Gizmos.DrawWireSphere(transform.position, Radius);
     }
+
+    public bool Intersect(PlaneCollider other)
+    {
+        float distance = Vector3.Dot((transform.position - other.plane.A), other.plane.Normal());
+        return distance <= Radius;
+    }
 }
